@@ -1,9 +1,16 @@
 import "dotenv/config";
-import { auth } from "@hms/auth";
+import { createAuth } from "@hms/auth";
+import { connectDB } from "@hms/db";
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import express from "express";
 import hospitalRoutes from "./apis/hospital/hospital.routes";
+
+// Connect to database
+await connectDB();
+
+// Initialize auth after database connection
+const auth = createAuth();
 
 export const app = express();
 

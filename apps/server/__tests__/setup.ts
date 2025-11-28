@@ -1,20 +1,17 @@
+import { connectDB } from "@hms/db";
 import dotenv from "dotenv";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, beforeAll } from "vitest";
 
-// Load test environment variables
-dotenv.config({ path: ".env.test" });
+// Load environment variables before anything else
+dotenv.config({ path: "apps/server/.env" });
 
 beforeAll(async () => {
-	// Global setup - runs once before all tests
+	// Connect to database before running tests
+	await connectDB();
 });
 
 afterAll(async () => {
 	// Global teardown - runs once after all tests
-});
-
-afterEach(async () => {
-	// Cleanup after each test
-	// Example: Clear database collections, reset mocks, etc.
 });
 
 // Test utilities can be added here
