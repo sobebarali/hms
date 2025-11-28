@@ -1,0 +1,32 @@
+import mongoose from "mongoose";
+import request from "supertest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { app } from "../../../src/index";
+
+describe("PATCH /api/hospitals/:id - Hospital not found", () => {
+	const nonExistentId = "507f1f77-bcf8-4cd7-9943-9011aaaaaaaa"; // Valid UUID v4 format
+
+	beforeAll(async () => {
+		// Ensure database connection
+		if (mongoose.connection.readyState === 0) {
+			await mongoose.connect(process.env.DATABASE_URL || "");
+		}
+	});
+
+	it("should return 404 when hospital does not exist", async () => {
+		const updateData = {
+			name: "Updated Hospital Name",
+			contactEmail: "updated@hospital.com",
+		};
+
+		const response = await request(app)
+			.patch(`/api/hospitals/${nonExistentId}`)
+			.send(updateData);
+
+		expect(response.status).toBe(404);
+		expect(response.body).toHaveProperty("code");
+		expect(response.body.code).toBe("NOT_FOUND");
+		expect(response.body).toHaveProperty("message");
+		expect(response.body.message).toBe("Hospital not found");
+	});
+});

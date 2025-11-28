@@ -142,7 +142,20 @@ All fields optional:
 
 **Status: 200 OK**
 
-Returns updated hospital object.
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Hospital ID |
+| name | string | Hospital name |
+| address | object | Hospital address |
+| address.street | string | Street address |
+| address.city | string | City |
+| address.state | string | State/Province |
+| address.postalCode | string | Postal/ZIP code |
+| address.country | string | Country |
+| contactEmail | string | Contact email |
+| contactPhone | string | Contact phone |
+| status | string | Current status |
+| updatedAt | string | ISO 8601 timestamp |
 
 ### Errors
 
