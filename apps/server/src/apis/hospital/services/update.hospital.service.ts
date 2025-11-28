@@ -1,3 +1,4 @@
+import { invalidateHospitalCache } from "../../../lib/cache/hospital.cache";
 import { createServiceLogger } from "../../../lib/logger";
 import {
 	findHospitalById,
@@ -59,6 +60,10 @@ export async function updateHospital({
 		},
 		"Hospital updated successfully",
 	);
+
+	// Invalidate cache after successful update
+	await invalidateHospitalCache(id);
+	logger.debug({ hospitalId: id }, "Hospital cache invalidated");
 
 	return {
 		id: String(updatedHospital._id),

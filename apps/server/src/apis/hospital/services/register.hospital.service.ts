@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { v4 as uuidv4 } from "uuid";
+import { setVerificationToken } from "../../../lib/cache/hospital.cache";
 import { sendHospitalVerificationEmail } from "../../../lib/email/hospital-email.service";
 import { createServiceLogger, logError } from "../../../lib/logger";
 import {
@@ -144,6 +145,13 @@ export async function registerHospital({
 				status: hospital.status,
 			},
 			"Hospital created successfully",
+		);
+
+		// Store verification token in Redis with 24 hour TTL
+		await setVerificationToken(hospitalId, verificationToken, 24 * 60 * 60);
+		logger.debug(
+			{ hospitalId },
+			"Verification token stored in Redis with 24h TTL",
 		);
 
 		// Send verification email

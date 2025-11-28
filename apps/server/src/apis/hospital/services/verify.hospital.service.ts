@@ -1,4 +1,9 @@
 import { HospitalStatus } from "@hms/db";
+import {
+	deleteVerificationToken,
+	getVerificationToken,
+	invalidateHospitalCache,
+} from "../../../lib/cache/hospital.cache";
 import { createServiceLogger, logError } from "../../../lib/logger";
 import {
 	findHospitalById,
@@ -61,7 +66,12 @@ export async function verifyHospital({
 
 	// Validate token
 	logger.debug({ hospitalId: id }, "Validating verification token");
-	if (hospital.verificationToken !== token) {
+
+	// Try to get token from Redis first (faster)
+	const cachedToken = await getVerificationToken(id);
+	const tokenToValidate = cachedToken || hospital.verificationToken;
+
+	if (tokenToValidate !== token) {
 		logger.warn(
 			{
 				hospitalId: id,
@@ -114,6 +124,14 @@ export async function verifyHospital({
 				newStatus: updatedHospital.status,
 			},
 			"Hospital verified successfully",
+		);
+
+		// Invalidate cache and delete verification token from Redis
+		await invalidateHospitalCache(id);
+		await deleteVerificationToken(id);
+		logger.debug(
+			{ hospitalId: id },
+			"Hospital cache invalidated and verification token removed from Redis",
 		);
 
 		return {

@@ -1,3 +1,7 @@
+import {
+	getCachedHospital,
+	setCachedHospital,
+} from "../../../lib/cache/hospital.cache";
 import { createServiceLogger, logError } from "../../../lib/logger";
 import { findHospitalById } from "../repositories/get-by-id.hospital.repository";
 import type { GetHospitalByIdOutput } from "../validations/get-by-id.hospital.validation";
@@ -12,6 +16,14 @@ export async function getHospitalById({
 	logger.info({ hospitalId: id }, "Retrieving hospital by ID");
 
 	try {
+		// Try to get from cache first
+		const cached = await getCachedHospital(id);
+		if (cached) {
+			logger.debug({ hospitalId: id }, "Hospital found in cache");
+			return cached as GetHospitalByIdOutput;
+		}
+
+		logger.debug({ hospitalId: id }, "Hospital not in cache, fetching from DB");
 		const hospital = await findHospitalById({ id });
 
 		if (!hospital) {
@@ -31,7 +43,7 @@ export async function getHospitalById({
 			"Hospital retrieved successfully",
 		);
 
-		return {
+		const result: GetHospitalByIdOutput = {
 			id: String(hospital._id),
 			tenantId: String(hospital._id), // In hospital context, hospital ID serves as tenant ID
 			name: hospital.name,
@@ -49,6 +61,12 @@ export async function getHospitalById({
 			createdAt: hospital.createdAt.toISOString(),
 			updatedAt: hospital.updatedAt.toISOString(),
 		};
+
+		// Cache the result
+		await setCachedHospital(id, result);
+		logger.debug({ hospitalId: id }, "Hospital cached successfully");
+
+		return result;
 	} catch (error) {
 		// Re-throw if it's already a known error with status code
 		if (typeof error === "object" && error !== null && "status" in error) {
