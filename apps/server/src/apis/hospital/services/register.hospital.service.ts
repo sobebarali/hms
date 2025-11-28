@@ -1,79 +1,168 @@
 import { randomBytes } from "node:crypto";
 import { v4 as uuidv4 } from "uuid";
-import type {
-	RegisterHospitalInput,
-	RegisterHospitalOutput,
-} from "../dtos/register.hospital.dto";
+import { createServiceLogger, logError } from "../../../lib/logger";
+import type { RegisterHospitalOutput } from "../dtos/register.hospital.dto";
 import {
 	createHospital,
 	findHospitalByAdminEmail,
 	findHospitalByLicense,
 } from "../repositories/register.hospital.repository";
 
+const logger = createServiceLogger("registerHospital");
+
 export async function registerHospital({
-	data,
+	name,
+	address,
+	contactEmail,
+	contactPhone,
+	licenseNumber,
+	adminEmail,
+	adminPhone,
 }: {
-	data: RegisterHospitalInput;
+	name: string;
+	address: {
+		street: string;
+		city: string;
+		state: string;
+		postalCode: string;
+		country: string;
+	};
+	contactEmail: string;
+	contactPhone: string;
+	licenseNumber: string;
+	adminEmail: string;
+	adminPhone: string;
 }): Promise<RegisterHospitalOutput> {
+	logger.info(
+		{
+			hospitalName: name,
+			licenseNumber,
+		},
+		"Starting hospital registration",
+	);
+
 	// Check for duplicate license number
-	const existingLicense = await findHospitalByLicense(data.licenseNumber);
+	logger.debug({ licenseNumber }, "Checking for duplicate license");
+	const existingLicense = await findHospitalByLicense({ licenseNumber });
 	if (existingLicense) {
+		logger.warn(
+			{
+				licenseNumber,
+				existingHospitalId: existingLicense._id,
+			},
+			"License number already exists",
+		);
 		throw {
 			status: 409,
 			code: "LICENSE_EXISTS",
 			message: "License number already registered",
 		};
 	}
+	logger.debug("License number is unique");
 
 	// Check for duplicate admin email
-	const existingEmail = await findHospitalByAdminEmail(data.adminEmail);
+	logger.debug(
+		{ adminEmail: `****@${adminEmail.split("@")[1]}` },
+		"Checking for duplicate admin email",
+	);
+	const existingEmail = await findHospitalByAdminEmail({ adminEmail });
 	if (existingEmail) {
+		logger.warn(
+			{
+				adminEmail: `****@${adminEmail.split("@")[1]}`,
+				existingHospitalId: existingEmail._id,
+			},
+			"Admin email already exists",
+		);
 		throw {
 			status: 409,
 			code: "EMAIL_EXISTS",
 			message: "Admin email already in use",
 		};
 	}
+	logger.debug("Admin email is unique");
 
 	// Generate unique IDs and tokens
 	const hospitalId = uuidv4();
 	const tenantId = uuidv4();
 
+	logger.debug(
+		{
+			hospitalId,
+			tenantId,
+		},
+		"Generated unique IDs",
+	);
+
 	// Generate slug from hospital name
-	const slug = data.name
+	const slug = name
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, "-")
 		.replace(/^-|-$/g, "");
+
+	logger.debug({ slug }, "Generated slug from hospital name");
 
 	// Generate verification token
 	const verificationToken = randomBytes(32).toString("hex");
 	const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+	logger.debug(
+		{
+			verificationExpires: verificationExpires.toISOString(),
+		},
+		"Generated verification token",
+	);
+
 	// Extract domain from hospital name for admin username
 	const domain = slug.split("-")[0] || "hospital";
 	const adminUsername = `admin@${domain}`;
 
-	// Create hospital
-	const hospital = await createHospital({
-		id: hospitalId,
-		data: {
-			...data,
+	logger.debug({ adminUsername }, "Generated admin username");
+
+	try {
+		// Create hospital
+		logger.info({ hospitalId }, "Creating hospital record");
+		const hospital = await createHospital({
+			id: hospitalId,
+			name,
 			slug,
+			licenseNumber,
+			address,
+			contactEmail,
+			contactPhone,
+			adminEmail,
+			adminPhone,
 			verificationToken,
 			verificationExpires,
-		},
-	});
+		});
 
-	// TODO: Send verification email (implement later)
-	// await sendVerificationEmail(data.adminEmail, verificationToken);
+		logger.info(
+			{
+				hospitalId: String(hospital._id),
+				tenantId,
+				status: hospital.status,
+			},
+			"Hospital created successfully",
+		);
 
-	return {
-		id: String(hospital._id),
-		tenantId: tenantId,
-		name: hospital.name,
-		status: (hospital.status as string) || "PENDING",
-		adminUsername,
-		message:
-			"Hospital registration successful. A verification email has been sent to the admin email address.",
-	};
+		// TODO: Send verification email (implement later)
+		logger.debug("Verification email sending skipped (not implemented)");
+
+		return {
+			id: String(hospital._id),
+			tenantId: tenantId,
+			name: hospital.name,
+			status: (hospital.status as string) || "PENDING",
+			adminUsername,
+			message:
+				"Hospital registration successful. A verification email has been sent to the admin email address.",
+		};
+	} catch (error) {
+		logError(logger, error, "Failed to create hospital", {
+			hospitalId,
+			tenantId,
+			hospitalName: name,
+		});
+		throw error;
+	}
 }
