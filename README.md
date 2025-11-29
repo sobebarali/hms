@@ -90,7 +90,8 @@ apps/server/src/apis/{domain}/
 ├── repositories/        # Database operations
 │   ├── {endpoint1}.{domain}.repository.ts
 │   ├── {endpoint2}.{domain}.repository.ts
-│   └── {endpoint3}.{domain}.repository.ts
+│   ├── {endpoint3}.{domain}.repository.ts
+│   └── shared.{domain}.repository.ts      # Reusable lookup functions
 ├── validations/        # Zod schemas + type definitions (Input & Output)
 │   ├── {endpoint1}.{domain}.validation.ts
 │   ├── {endpoint2}.{domain}.validation.ts
@@ -121,7 +122,8 @@ apps/server/src/apis/patients/
 │   ├── list.patients.repository.ts
 │   ├── get-by-id.patients.repository.ts
 │   ├── update.patients.repository.ts
-│   └── delete.patients.repository.ts
+│   ├── delete.patients.repository.ts
+│   └── shared.patients.repository.ts      # Reusable lookups (findById, findByEmail, etc.)
 ├── validations/
 │   ├── register.patients.validation.ts
 │   ├── list.patients.validation.ts
@@ -139,6 +141,8 @@ apps/server/src/apis/patients/
 - **Controllers** - HTTP handling, extract data from request, call service, return response
 - **Services** - Business logic, orchestration, multi-repository coordination
 - **Repositories** - Database queries, single model CRUD operations
+  - Endpoint repositories: endpoint-specific operations only
+  - Shared repositories: reusable lookup functions across endpoints/domains
 - **Middlewares** - Domain-specific middleware (authorization, validation, etc.)
 
 ## Available Scripts

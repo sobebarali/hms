@@ -1,10 +1,10 @@
 import { invalidateAllUserSessions } from "../../../lib/cache/auth.cache";
 import { createServiceLogger } from "../../../lib/logger";
+import { deactivateStaff } from "../repositories/deactivate.users.repository";
 import {
-	deactivateStaff,
 	findStaffById,
 	invalidateUserSessions,
-} from "../repositories/deactivate.users.repository";
+} from "../repositories/shared.users.repository";
 import type { DeactivateUserOutput } from "../validations/deactivate.users.validation";
 
 const logger = createServiceLogger("deactivateUser");

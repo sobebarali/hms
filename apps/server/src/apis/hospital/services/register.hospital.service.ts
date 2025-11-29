@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import { setVerificationToken } from "../../../lib/cache/hospital.cache";
 import { sendHospitalVerificationEmail } from "../../../lib/email/hospital-email.service";
 import { createServiceLogger, logError } from "../../../lib/logger";
+import { createHospital } from "../repositories/register.hospital.repository";
 import {
-	createHospital,
 	findHospitalByAdminEmail,
 	findHospitalByLicense,
-} from "../repositories/register.hospital.repository";
+} from "../repositories/shared.hospital.repository";
 import type { RegisterHospitalOutput } from "../validations/register.hospital.validation";
 
 const logger = createServiceLogger("registerHospital");

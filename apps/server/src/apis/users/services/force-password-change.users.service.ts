@@ -1,8 +1,6 @@
 import { createServiceLogger } from "../../../lib/logger";
-import {
-	findStaffById,
-	setPasswordExpired,
-} from "../repositories/force-password-change.users.repository";
+import { setPasswordExpired } from "../repositories/force-password-change.users.repository";
+import { findStaffById } from "../repositories/shared.users.repository";
 import type { ForcePasswordChangeOutput } from "../validations/force-password-change.users.validation";
 
 const logger = createServiceLogger("forcePasswordChange");

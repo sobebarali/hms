@@ -8,39 +8,6 @@ import {
 const logger = createRepositoryLogger("forcePasswordChange");
 
 /**
- * Find staff by ID
- */
-export async function findStaffById({
-	tenantId,
-	staffId,
-}: {
-	tenantId: string;
-	staffId: string;
-}) {
-	try {
-		logger.debug({ tenantId, staffId }, "Finding staff by ID");
-
-		const staff = await Staff.findOne({
-			_id: staffId,
-			tenantId,
-		}).lean();
-
-		logDatabaseOperation(
-			logger,
-			"findOne",
-			"staff",
-			{ tenantId, staffId },
-			staff ? { _id: staff._id, found: true } : { found: false },
-		);
-
-		return staff;
-	} catch (error) {
-		logError(logger, error, "Failed to find staff by ID");
-		throw error;
-	}
-}
-
-/**
  * Set staff status to PASSWORD_EXPIRED
  */
 export async function setPasswordExpired({

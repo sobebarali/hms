@@ -4,8 +4,8 @@ import {
 	findDepartmentById,
 	findStaffById,
 	getRolesByIds,
-	updateStaff,
-} from "../repositories/update.users.repository";
+} from "../repositories/shared.users.repository";
+import { updateStaff } from "../repositories/update.users.repository";
 import type {
 	UpdateUserInput,
 	UpdateUserOutput,

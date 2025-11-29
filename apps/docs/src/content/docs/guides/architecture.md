@@ -130,6 +130,8 @@ module/
 ├── controllers/    # HTTP request handlers
 ├── services/       # Business logic
 ├── repositories/   # Data access
+│   ├── {endpoint}.{domain}.repository.ts  # Endpoint-specific operations
+│   └── shared.{domain}.repository.ts      # Reusable lookup functions
 ├── validations/   # Zod schemas + type definitions (Input & Output)
 ├── middlewares/   # Domain-specific middleware
 └── routes.ts      # Route definitions
@@ -144,7 +146,26 @@ module/
 | Controllers | HTTP request/response handling | `{endpoint}.{domain}.controller.ts` |
 | Services | Business logic and orchestration | `{endpoint}.{domain}.service.ts` |
 | Repositories | Database operations | `{endpoint}.{domain}.repository.ts` |
+| Shared Repositories | Reusable lookup functions | `shared.{domain}.repository.ts` |
 | Middlewares | Domain middleware | `{domain}.middleware.ts` |
+
+### Shared Repository Pattern
+
+Reusable database lookup functions are centralized in shared repository files:
+
+- **File naming**: `shared.{domain}.repository.ts`
+- **Purpose**: Common lookups used across multiple endpoints or domains
+- **Import rule**: Services import directly from shared repositories
+- **Cross-domain**: Services can import from other domains' shared repositories
+
+**Example imports in a service:**
+```typescript
+// Import from same domain's shared repository
+import { findPatientById } from "../repositories/shared.patients.repository";
+
+// Import from another domain's shared repository
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
+```
 
 ### Example: Patients Domain
 
@@ -161,7 +182,8 @@ apps/server/src/apis/patients/
 ├── repositories/
 │   ├── register.patients.repository.ts
 │   ├── list.patients.repository.ts
-│   └── get-by-id.patients.repository.ts
+│   ├── get-by-id.patients.repository.ts
+│   └── shared.patients.repository.ts      # findById, findByEmail, etc.
 ├── validations/
 │   ├── register.patients.validation.ts
 │   ├── list.patients.validation.ts

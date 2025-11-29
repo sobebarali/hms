@@ -7,14 +7,18 @@ import {
 	recordFailedLogin,
 } from "../../../lib/cache/auth.cache";
 import { createServiceLogger } from "../../../lib/logger";
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
 import {
-	createSession,
-	findAccountByUserId,
-	findHospitalById,
-	findSessionByToken,
 	findStaffByUserAndTenant,
 	findUserByEmail,
-	getRolesByIds,
+	getActiveRolesByIds as getRolesByIds,
+} from "../../users/repositories/shared.users.repository";
+import {
+	createSession,
+	findValidSessionByToken as findSessionByToken,
+} from "../repositories/shared.auth.repository";
+import {
+	findAccountByUserId,
 	updateStaffLastLogin,
 } from "../repositories/token.auth.repository";
 import {

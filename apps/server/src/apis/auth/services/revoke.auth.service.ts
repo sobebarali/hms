@@ -8,7 +8,7 @@ import {
 	deleteAllUserSessions,
 	deleteSessionById,
 	findSessionByToken,
-} from "../repositories/revoke.auth.repository";
+} from "../repositories/shared.auth.repository";
 import type {
 	RevokeTokenInput,
 	RevokeTokenOutput,

@@ -1,12 +1,12 @@
 import { getPasswordResetEmailTemplate } from "../../../lib/email/templates/password-reset";
 import { createServiceLogger } from "../../../lib/logger";
 import { sendEmail } from "../../../lib/mailer";
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
+import { createResetToken } from "../repositories/forgot-password.users.repository";
 import {
-	createResetToken,
-	findHospitalById,
 	findStaffByUserAndTenant,
 	findUserByEmail,
-} from "../repositories/forgot-password.users.repository";
+} from "../repositories/shared.users.repository";
 import type {
 	ForgotPasswordInput,
 	ForgotPasswordOutput,

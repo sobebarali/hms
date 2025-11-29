@@ -3,8 +3,8 @@ import {
 	findStaffByUserId,
 	findUserById,
 	getDepartmentById,
-	getRolesByIds,
-} from "../repositories/me.auth.repository";
+	getRolesByIdsWithoutTenant as getRolesByIds,
+} from "../../users/repositories/shared.users.repository";
 import type { MeOutput, RoleOutput } from "../validations/me.auth.validation";
 
 const logger = createServiceLogger("meAuth");

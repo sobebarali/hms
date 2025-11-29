@@ -4,12 +4,14 @@ import { createServiceLogger } from "../../../lib/logger";
 import {
 	checkPasswordHistory,
 	deleteResetToken,
-	findStaffByUserId,
-	findUserByEmail,
 	findValidResetToken,
-	invalidateUserSessions,
 	updatePassword,
 } from "../repositories/reset-password.users.repository";
+import {
+	findStaffByUserId,
+	findUserByEmail,
+	invalidateUserSessions,
+} from "../repositories/shared.users.repository";
 import type {
 	ResetPasswordInput,
 	ResetPasswordOutput,

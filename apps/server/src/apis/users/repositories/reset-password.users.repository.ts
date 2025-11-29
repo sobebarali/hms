@@ -1,4 +1,4 @@
-import { Account, Session, Staff, User, Verification } from "@hms/db";
+import { Account, Staff, Verification } from "@hms/db";
 import bcrypt from "bcryptjs";
 import {
 	createRepositoryLogger,
@@ -30,32 +30,6 @@ export async function findValidResetToken({ token }: { token: string }) {
 		return { expired: false, verification };
 	} catch (error) {
 		logError(logger, error, "Failed to find reset token");
-		throw error;
-	}
-}
-
-/**
- * Find user by email
- */
-export async function findUserByEmail({ email }: { email: string }) {
-	try {
-		const user = await User.findOne({ email }).lean();
-		return user;
-	} catch (error) {
-		logError(logger, error, "Failed to find user by email");
-		throw error;
-	}
-}
-
-/**
- * Find staff by user ID
- */
-export async function findStaffByUserId({ userId }: { userId: string }) {
-	try {
-		const staff = await Staff.findOne({ userId }).lean();
-		return staff;
-	} catch (error) {
-		logError(logger, error, "Failed to find staff");
 		throw error;
 	}
 }
@@ -160,23 +134,6 @@ export async function deleteResetToken({ token }: { token: string }) {
 		logger.debug("Reset token deleted");
 	} catch (error) {
 		logError(logger, error, "Failed to delete reset token");
-		throw error;
-	}
-}
-
-/**
- * Invalidate all sessions for a user
- */
-export async function invalidateUserSessions({ userId }: { userId: string }) {
-	try {
-		const result = await Session.deleteMany({ userId });
-		logger.info(
-			{ userId, count: result.deletedCount },
-			"User sessions invalidated",
-		);
-		return result.deletedCount;
-	} catch (error) {
-		logError(logger, error, "Failed to invalidate sessions", { userId });
 		throw error;
 	}
 }

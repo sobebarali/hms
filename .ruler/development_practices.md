@@ -147,6 +147,8 @@ export interface RegisterPatientOutput {
 - Database operations only
 - No business logic
 - Return database results directly
+- Endpoint repositories contain only endpoint-specific operations
+- Reusable lookups go in `shared.{domain}.repository.ts`
 
 Example:
 ```typescript
@@ -168,15 +170,49 @@ export async function createPatient({
 }
 ```
 
+**2b. Shared Repository Layer** (`repositories/shared.{domain}.repository.ts`)
+- Reusable lookup functions used across multiple endpoints or domains
+- Services import directly from shared repositories
+- Never re-export from endpoint repositories
+
+Example:
+```typescript
+import { Patient } from "@repo/db";
+
+export async function findPatientById({
+	tenantId,
+	patientId,
+}: {
+	tenantId: string;
+	patientId: string;
+}) {
+	return Patient.findOne({ _id: patientId, tenantId }).lean();
+}
+
+export async function findPatientByEmail({
+	tenantId,
+	email,
+}: {
+	tenantId: string;
+	email: string;
+}) {
+	return Patient.findOne({ tenantId, email }).lean();
+}
+```
+
 **3. Service Layer** (`services/{endpoint}.{domain}.service.ts`)
 - Business logic and orchestration
 - Call one or more repositories
 - Handle transactions
 - No HTTP concerns
+- Import shared lookups from `shared.{domain}.repository.ts`
+- Can import from other domains' shared repositories
 
 Example:
 ```typescript
 import { createPatient as createPatientRepo } from "../repositories/register.patients.repository";
+import { findPatientByEmail } from "../repositories/shared.patients.repository";
+import { findDepartmentById } from "../../departments/repositories/shared.departments.repository";
 import type { RegisterPatientInput, RegisterPatientOutput } from "../validations/register.patients.validation";
 
 export async function registerPatient({
@@ -186,10 +222,20 @@ export async function registerPatient({
 	tenantId: string;
 	data: RegisterPatientInput;
 }): Promise<RegisterPatientOutput> {
-	// Business logic: Generate patient ID, validate, etc.
-	const patient = await createPatientRepo({ tenantId, data });
+	// Check for duplicate email using shared repository
+	const existing = await findPatientByEmail({ tenantId, email: data.email });
+	if (existing) {
+		throw { status: 409, code: "EMAIL_EXISTS", message: "Email already in use" };
+	}
 	
-	// Additional logic: Send welcome email, create audit log, etc.
+	// Validate department exists (cross-domain import)
+	const department = await findDepartmentById({ tenantId, departmentId: data.departmentId });
+	if (!department) {
+		throw { status: 400, code: "INVALID_DEPARTMENT", message: "Department not found" };
+	}
+	
+	// Create patient using endpoint-specific repository
+	const patient = await createPatientRepo({ tenantId, data });
 	
 	// Map to output DTO
 	return {
@@ -311,7 +357,8 @@ apps/server/src/apis/patients/
 │   ├── get-by-id.patients.repository.ts
 │   ├── update.patients.repository.ts
 │   ├── delete.patients.repository.ts
-│   └── search.patients.repository.ts
+│   ├── search.patients.repository.ts
+│   └── shared.patients.repository.ts      # Reusable lookups
 ├── validations/
 │   ├── register.patients.validation.ts
 │   ├── list.patients.validation.ts
@@ -322,4 +369,25 @@ apps/server/src/apis/patients/
 ├── middlewares/
 │   └── patients.middleware.ts
 └── patients.routes.ts
+```
+
+### Shared Repository Import Rules
+
+1. **Services import shared functions directly** from `shared.{domain}.repository.ts`
+2. **Endpoint repositories export only endpoint-specific operations** (e.g., `createPatient`, `updatePatient`)
+3. **Never re-export shared functions** from endpoint repositories
+4. **Cross-domain imports allowed** for shared repositories only
+
+**Correct:**
+```typescript
+// service imports from shared repositories
+import { findPatientById } from "../repositories/shared.patients.repository";
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
+```
+
+**Incorrect:**
+```typescript
+// DON'T re-export from endpoint repositories
+// in register.patients.repository.ts
+export { findPatientById } from "./shared.patients.repository"; // ❌ WRONG
 ```

@@ -56,6 +56,52 @@ apps/server/src/apis/{domain}/
 - Reduces merge conflicts in team environments
 - Zod as single source of truth for input types ensures validation and types are always in sync
 
+### Shared Repositories
+
+For reusable database lookup functions used across multiple endpoints or domains, create shared repository files.
+
+**Directory Structure with Shared Repositories:**
+```
+apps/server/src/apis/{domain}/
+├── controllers/{endpoint}.{domain}.controller.ts
+├── services/{endpoint}.{domain}.service.ts
+├── repositories/
+│   ├── {endpoint}.{domain}.repository.ts    # Endpoint-specific operations
+│   └── shared.{domain}.repository.ts        # Reusable lookup functions
+├── validations/{endpoint}.{domain}.validation.ts
+├── middlewares/{domain}.middleware.ts
+└── {domain}.routes.ts
+```
+
+**Shared Repository Guidelines:**
+- File naming: `shared.{domain}.repository.ts`
+- Contains reusable lookup functions (e.g., `findById`, `findByEmail`)
+- Services import directly from shared repositories
+- Endpoint repositories contain only endpoint-specific operations
+- Never re-export shared functions from endpoint repositories
+
+**Example - users domain:**
+```
+repositories/
+├── create.users.repository.ts      # createUser only
+├── update.users.repository.ts      # updateStaff only
+├── deactivate.users.repository.ts  # deactivateStaff only
+└── shared.users.repository.ts      # findStaffById, findUserByEmail, getRolesByIds, etc.
+```
+
+**Cross-Domain Imports:**
+Services can import shared functions from other domains:
+```typescript
+// In users service
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
+import { findStaffById } from "../repositories/shared.users.repository";
+```
+
+**Existing Shared Repositories:**
+- `shared.users.repository.ts` - Staff, User, Department, Role lookups, session invalidation
+- `shared.hospital.repository.ts` - Hospital lookups by ID, license, admin email
+- `shared.auth.repository.ts` - Session CRUD operations
+
 ## Multi-Tenant Architecture
 
 ### Schema-Per-Tenant Isolation

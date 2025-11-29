@@ -1,15 +1,15 @@
 import { getWelcomeEmailTemplate } from "../../../lib/email/templates/welcome";
 import { createServiceLogger } from "../../../lib/logger";
 import { sendEmail } from "../../../lib/mailer";
+import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
+import { createUser } from "../repositories/create.users.repository";
 import {
-	createUser,
 	findDepartmentById,
-	findHospitalById,
 	findStaffByEmail,
 	generateTemporaryPassword,
 	getRolesByIds,
 	hashPassword,
-} from "../repositories/create.users.repository";
+} from "../repositories/shared.users.repository";
 import type {
 	CreateUserInput,
 	CreateUserOutput,
