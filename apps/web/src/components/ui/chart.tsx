@@ -78,6 +78,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
 	return (
 		<style
+			// biome-ignore lint/security/noDangerouslySetInnerHtml: shadcn/ui component - CSS injection is safe as values are from controlled config
 			dangerouslySetInnerHTML={{
 				__html: Object.entries(THEMES)
 					.map(

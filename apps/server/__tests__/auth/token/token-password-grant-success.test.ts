@@ -205,6 +205,6 @@ describe("POST /api/auth/token - Password Grant Success", () => {
 
 		const staff = await Staff.findById(staffId);
 		expect(staff?.lastLogin).toBeInstanceOf(Date);
-		expect(staff?.lastLogin!.getTime()).toBeGreaterThan(beforeLogin.getTime());
+		expect(staff?.lastLogin?.getTime()).toBeGreaterThan(beforeLogin.getTime());
 	});
 });

@@ -166,10 +166,11 @@ export async function createAuthTestContext(
 		createdRoleNames.push(role.name);
 	}
 
-	let staffRecord: Awaited<ReturnType<typeof Staff.create>> | null = null;
+	let staffRecord: Awaited<ReturnType<typeof Staff.create>>[number] | null =
+		null;
 
 	if (createStaff) {
-		staffRecord = await Staff.create({
+		const created = await Staff.create({
 			_id: `staff-${uniqueId}`,
 			tenantId: String(hospital._id),
 			userId: String(user._id),
@@ -185,6 +186,7 @@ export async function createAuthTestContext(
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
+		staffRecord = created;
 	}
 
 	const hashedPassword = await bcrypt.hash(password, 10);
