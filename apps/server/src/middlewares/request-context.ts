@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import type { RequestContext } from "../lib/async-context";
-import { runWithContext } from "../lib/async-context";
+import { enterContext } from "../lib/async-context";
 
 // Extend Express Request type to include context
 declare global {
@@ -36,8 +36,7 @@ export function requestContext(
 	// Add traceId to response headers for client-side tracking
 	res.setHeader("X-Trace-Id", traceId);
 
-	// Run the rest of the request in this context
-	runWithContext(context, () => {
-		next();
-	});
+	// Enter context that persists across async boundaries
+	enterContext(context);
+	next();
 }

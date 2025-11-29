@@ -1,7 +1,17 @@
 import { MailtrapTransport } from "mailtrap";
 import nodemailer from "nodemailer";
 
-export const transporter = nodemailer.createTransport(
+// Looking to send emails in production? Check out our Email API/SMTP product!
+export const devTransporter = nodemailer.createTransport({
+	host: process.env.MAILTRAP_HOST ?? "sandbox.smtp.mailtrap.io",
+	port: Number(process.env.MAILTRAP_PORT) ?? 2525,
+	auth: {
+		user: process.env.MAILTRAP_USER ?? "",
+		pass: process.env.MAILTRAP_PASS ?? "",
+	},
+});
+
+export const prodTransporter = nodemailer.createTransport(
 	MailtrapTransport({
 		token: process.env.MAILTRAP_API_TOKEN || "",
 		testInboxId: Number.parseInt(process.env.MAILTRAP_TEST_INBOX_ID || "0", 10),
@@ -46,6 +56,12 @@ export async function sendEmail({
 		category: category || "General",
 		sandbox: process.env.NODE_ENV !== "production",
 	};
+
+	if (process.env.NODE_ENV === "production") {
+		return await prodTransporter.sendMail(mailOptions);
+	}
+
+	const transporter = devTransporter;
 
 	return await transporter.sendMail(mailOptions);
 }

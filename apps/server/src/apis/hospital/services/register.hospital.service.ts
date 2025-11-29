@@ -153,7 +153,7 @@ export async function registerHospital({
 		// Send verification email
 		try {
 			logger.info({ adminEmail }, "Sending verification email");
-			const verificationUrl = `${process.env.BETTER_AUTH_URL}/verify-hospital/${hospitalId}?token=${verificationToken}`;
+			const verificationUrl = `${process.env.CORS_ORIGIN}/verify-hospital?hospitalId=${hospitalId}&token=${verificationToken}`;
 
 			await sendHospitalVerificationEmail({
 				to: adminEmail,

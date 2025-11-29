@@ -21,9 +21,6 @@ export const app = express();
 // Request context middleware (MUST BE FIRST)
 app.use(requestContext);
 
-// Request logger middleware (after context)
-app.use(requestLogger);
-
 app.use(
 	cors({
 		origin: process.env.CORS_ORIGIN || "",
@@ -34,6 +31,9 @@ app.use(
 );
 
 app.use(express.json());
+
+// Request logger middleware (AFTER body parsing so req.body is available)
+app.use(requestLogger);
 
 // API Routes
 app.use("/api/auth", authRoutes);

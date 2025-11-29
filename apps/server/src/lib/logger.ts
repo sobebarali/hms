@@ -96,6 +96,14 @@ const baseLogger = pino({
 			: undefined,
 	// Disable logging in test environment to reduce noise
 	enabled: !isTest,
+	// Mixin to inject context on every log call
+	mixin() {
+		return {
+			traceId: getTraceId(),
+			tenantId: getTenantId(),
+			userId: getUserId(),
+		};
+	},
 	// Custom serializers
 	serializers: {
 		err: pino.stdSerializers.err,
@@ -105,21 +113,12 @@ const baseLogger = pino({
 });
 
 /**
- * Create a child logger with automatic context injection
+ * Create a child logger with metadata
+ * Context (traceId, tenantId, userId) is injected via mixin on every log call
  */
 export function createLogger(metadata?: Record<string, unknown>) {
 	return baseLogger.child({
 		...metadata,
-		// Automatically inject traceId from async context
-		get traceId() {
-			return getTraceId();
-		},
-		get tenantId() {
-			return getTenantId();
-		},
-		get userId() {
-			return getUserId();
-		},
 	});
 }
 

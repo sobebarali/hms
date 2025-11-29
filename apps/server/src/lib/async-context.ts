@@ -59,6 +59,15 @@ export function runWithContext<T>(
 }
 
 /**
+ * Enter a context that persists across async boundaries
+ * Use this in middleware to maintain context throughout the request lifecycle
+ * @param context - The request context to enter
+ */
+export function enterContext(context: RequestContext): void {
+	asyncLocalStorage.enterWith(context);
+}
+
+/**
  * Update the current request context with new values
  * @param updates - Partial context updates
  */
