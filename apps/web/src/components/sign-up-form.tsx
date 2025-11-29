@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 
 export default function SignUpForm({
@@ -22,7 +23,7 @@ export default function SignUpForm({
 							and you'll be created as the hospital admin.
 						</p>
 						<Button className="mt-3 w-full" variant="outline" asChild>
-							<a href="/register-hospital">Register Hospital</a>
+							<Link to="/register-hospital">Register Hospital</Link>
 						</Button>
 					</div>
 

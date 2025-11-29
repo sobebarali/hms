@@ -54,6 +54,69 @@ export interface Hospital {
 	status: string;
 }
 
+export interface HospitalDetails {
+	id: string;
+	tenantId: string;
+	name: string;
+	address: {
+		street: string;
+		city: string;
+		state: string;
+		postalCode: string;
+		country: string;
+	};
+	contactEmail: string;
+	contactPhone: string;
+	licenseNumber: string;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface RegisterHospitalInput {
+	name: string;
+	address: {
+		street: string;
+		city: string;
+		state: string;
+		postalCode: string;
+		country: string;
+	};
+	contactEmail: string;
+	contactPhone: string;
+	licenseNumber: string;
+	adminEmail: string;
+	adminPhone: string;
+}
+
+export interface RegisterHospitalResponse {
+	id: string;
+	tenantId: string;
+	name: string;
+	status: string;
+	adminUsername: string;
+	message: string;
+}
+
+export interface VerifyHospitalResponse {
+	id: string;
+	status: string;
+	message: string;
+}
+
+export interface UpdateHospitalInput {
+	name?: string;
+	address?: {
+		street?: string;
+		city?: string;
+		state?: string;
+		postalCode?: string;
+		country?: string;
+	};
+	contactEmail?: string;
+	contactPhone?: string;
+}
+
 export interface AuthError {
 	code: string;
 	message: string;
@@ -258,6 +321,64 @@ export function getAccessToken(): string | null {
 	return getStoredTokens().accessToken;
 }
 
+// Hospital API functions
+export async function registerHospital(
+	data: RegisterHospitalInput,
+): Promise<RegisterHospitalResponse> {
+	const response = await apiRequest<{
+		success: boolean;
+		data: RegisterHospitalResponse;
+	}>("/api/hospitals", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+	return response.data;
+}
+
+export async function verifyHospital({
+	hospitalId,
+	token,
+}: {
+	hospitalId: string;
+	token: string;
+}): Promise<VerifyHospitalResponse> {
+	const response = await apiRequest<{
+		success: boolean;
+		data: VerifyHospitalResponse;
+	}>(`/api/hospitals/${hospitalId}/verify`, {
+		method: "POST",
+		body: JSON.stringify({ token }),
+	});
+	return response.data;
+}
+
+export async function getHospital(
+	hospitalId: string,
+): Promise<HospitalDetails> {
+	const response = await authenticatedRequest<{
+		success: boolean;
+		data: HospitalDetails;
+	}>(`/api/hospitals/${hospitalId}`);
+	return response.data;
+}
+
+export async function updateHospital({
+	hospitalId,
+	data,
+}: {
+	hospitalId: string;
+	data: UpdateHospitalInput;
+}): Promise<HospitalDetails> {
+	const response = await authenticatedRequest<{
+		success: boolean;
+		data: HospitalDetails;
+	}>(`/api/hospitals/${hospitalId}`, {
+		method: "PATCH",
+		body: JSON.stringify(data),
+	});
+	return response.data;
+}
+
 // Auth client object for compatibility
 export const authClient = {
 	signIn,
@@ -268,6 +389,11 @@ export const authClient = {
 	isAuthenticated,
 	getAccessToken,
 	clearTokens,
+	// Hospital functions
+	registerHospital,
+	verifyHospital,
+	getHospital,
+	updateHospital,
 };
 
 export default authClient;

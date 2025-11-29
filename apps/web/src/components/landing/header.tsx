@@ -41,7 +41,7 @@ export function Header() {
 							<Link to="/login">Log In</Link>
 						</Button>
 						<Button asChild>
-							<Link to="/login">Register Hospital</Link>
+							<Link to="/register-hospital">Register Hospital</Link>
 						</Button>
 					</div>
 
@@ -83,7 +83,7 @@ export function Header() {
 							<Link to="/login">Log In</Link>
 						</Button>
 						<Button asChild>
-							<Link to="/login">Register Hospital</Link>
+							<Link to="/register-hospital">Register Hospital</Link>
 						</Button>
 					</div>
 				</div>

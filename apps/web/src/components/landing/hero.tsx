@@ -65,7 +65,7 @@ export function Hero() {
 
 						<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
 							<Button size="lg" asChild>
-								<Link to="/login">
+								<Link to="/register-hospital">
 									Register Your Hospital
 									<ArrowRight className="ml-2 h-4 w-4" />
 								</Link>

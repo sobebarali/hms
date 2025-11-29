@@ -9,14 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyHospitalRouteImport } from './routes/verify-hospital'
 import { Route as SuccessRouteImport } from './routes/success'
+import { Route as RegisterHospitalRouteImport } from './routes/register-hospital'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VerifyHospitalRoute = VerifyHospitalRouteImport.update({
+  id: '/verify-hospital',
+  path: '/verify-hospital',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuccessRoute = SuccessRouteImport.update({
   id: '/success',
   path: '/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterHospitalRoute = RegisterHospitalRouteImport.update({
+  id: '/register-hospital',
+  path: '/register-hospital',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -39,43 +51,84 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register-hospital': typeof RegisterHospitalRoute
   '/success': typeof SuccessRoute
+  '/verify-hospital': typeof VerifyHospitalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register-hospital': typeof RegisterHospitalRoute
   '/success': typeof SuccessRoute
+  '/verify-hospital': typeof VerifyHospitalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register-hospital': typeof RegisterHospitalRoute
   '/success': typeof SuccessRoute
+  '/verify-hospital': typeof VerifyHospitalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/success'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register-hospital'
+    | '/success'
+    | '/verify-hospital'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/success'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/success'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register-hospital'
+    | '/success'
+    | '/verify-hospital'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register-hospital'
+    | '/success'
+    | '/verify-hospital'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  RegisterHospitalRoute: typeof RegisterHospitalRoute
   SuccessRoute: typeof SuccessRoute
+  VerifyHospitalRoute: typeof VerifyHospitalRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-hospital': {
+      id: '/verify-hospital'
+      path: '/verify-hospital'
+      fullPath: '/verify-hospital'
+      preLoaderRoute: typeof VerifyHospitalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/success': {
       id: '/success'
       path: '/success'
       fullPath: '/success'
       preLoaderRoute: typeof SuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register-hospital': {
+      id: '/register-hospital'
+      path: '/register-hospital'
+      fullPath: '/register-hospital'
+      preLoaderRoute: typeof RegisterHospitalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -106,7 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  RegisterHospitalRoute: RegisterHospitalRoute,
   SuccessRoute: SuccessRoute,
+  VerifyHospitalRoute: VerifyHospitalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
