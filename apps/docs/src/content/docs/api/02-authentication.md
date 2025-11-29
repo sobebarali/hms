@@ -30,6 +30,8 @@ Varies by grant type
 | password | string | Yes | User password |
 | tenant_id | string | Yes | Hospital tenant ID |
 
+**Important:** The `tenant_id` is required because users can belong to multiple hospitals. The system loads roles and permissions specific to the selected tenant.
+
 #### Authorization Code Grant
 
 | Field | Type | Required | Description |
@@ -88,6 +90,60 @@ Access token JWT payload contains:
 | 401 | INVALID_TOKEN | Invalid refresh token |
 | 403 | ACCOUNT_LOCKED | User account is locked |
 | 403 | TENANT_INACTIVE | Hospital tenant is not active |
+
+### Multi-Tenant Login Flow
+
+Users can belong to multiple hospitals with different roles in each. The login process handles this through tenant selection.
+
+#### Login Validation Chain
+
+When a user submits credentials with a `tenant_id`, the system validates:
+
+1. **Account Lock Check** - Is the account locked due to failed attempts?
+2. **Tenant Validation** - Does the hospital exist and is it ACTIVE or VERIFIED?
+3. **User Lookup** - Does the user exist with this email?
+4. **Password Verification** - Is the password correct?
+5. **Staff Record Check** - Does the user have a Staff record in this tenant?
+6. **Staff Status Check** - Is the Staff record ACTIVE?
+7. **Role/Permission Load** - Load tenant-specific roles and permissions
+
+#### Multi-Hospital User Scenario
+
+A doctor working at two hospitals:
+
+| Hospital | Role | Permissions |
+|----------|------|-------------|
+| City General | DOCTOR | PATIENT:READ, PRESCRIPTION:CREATE |
+| County Clinic | HOSPITAL_ADMIN | Full tenant access |
+
+The same email address can have completely different access levels depending on which `tenant_id` is provided at login.
+
+#### Session Caching
+
+After successful authentication:
+
+```
+Redis Key: session:{access_token}
+Value: {
+  userId: "user-uuid",
+  tenantId: "hospital-uuid",
+  roles: ["DOCTOR"],
+  permissions: ["PATIENT:READ", "PRESCRIPTION:CREATE", ...],
+  cachedAt: timestamp
+}
+TTL: 3600 seconds (1 hour)
+```
+
+This cached session enables fast authorization checks without database queries.
+
+#### First-Time Login
+
+For newly created users (including admin users created during hospital verification):
+
+1. User logs in with temporary password from welcome email
+2. System detects `forcePasswordChange: true` on Staff record
+3. User is required to set a new password
+4. After password change, normal access is granted
 
 ---
 

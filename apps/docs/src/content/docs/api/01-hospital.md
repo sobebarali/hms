@@ -220,6 +220,100 @@ None required (uses verification token)
 - Verification token expires after 24 hours
 - Status changes from `PENDING` to `VERIFIED`
 
+### Automatic Tenant Provisioning
+
+Upon successful verification, the system automatically provisions the tenant with everything needed to start operations:
+
+#### 1. System Roles Created
+
+The following pre-defined roles are seeded for the tenant:
+
+| Role | Description | Hierarchy Level |
+|------|-------------|-----------------|
+| SUPER_ADMIN | Platform administrator | 0 (highest) |
+| HOSPITAL_ADMIN | Hospital administrator | 1 |
+| DOCTOR | Medical practitioner | 2 |
+| NURSE | Nursing staff | 2 |
+| PHARMACIST | Pharmacy staff | 2 |
+| RECEPTIONIST | Front desk staff | 3 |
+
+Each role comes with pre-configured permissions. See [Authentication API](/api/02-authentication) for permission details.
+
+#### 2. Default Department Created
+
+| Field | Value |
+|-------|-------|
+| Name | Administration |
+| Code | ADMIN |
+| Type | ADMINISTRATIVE |
+| Status | ACTIVE |
+
+#### 3. Admin User Created
+
+The admin user is automatically created using the `adminEmail` and `adminPhone` from the hospital registration:
+
+| Field | Value |
+|-------|-------|
+| Email | From `adminEmail` in registration |
+| Role | HOSPITAL_ADMIN |
+| Department | Administration |
+| Employee ID | EMP-00001 |
+| Status | ACTIVE |
+| Force Password Change | true |
+
+#### 4. Welcome Email Sent
+
+A welcome email is sent to the admin containing:
+
+- Temporary password (auto-generated)
+- Login URL
+- Security instructions
+- Note that password must be changed on first login
+
+#### Provisioning Flow Diagram
+
+```
+POST /api/hospitals/:id/verify
+         │
+         ▼
+  ┌──────────────────┐
+  │ Validate Token   │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ Update Status    │
+  │ to VERIFIED      │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ Seed System      │
+  │ Roles (6 roles)  │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ Create Default   │
+  │ Department       │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ Create Admin     │
+  │ User + Account   │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ Send Welcome     │
+  │ Email            │
+  └────────┬─────────┘
+           │
+           ▼
+       Response
+```
+
 ---
 
 ## Update Hospital Status

@@ -40,6 +40,7 @@ const staffSchema = new Schema(
 		lastLogin: { type: Date },
 		deactivatedAt: { type: Date },
 		passwordHistory: [{ type: String }],
+		forcePasswordChange: { type: Boolean, default: false },
 		createdAt: { type: Date, required: true },
 		updatedAt: { type: Date, required: true },
 	},

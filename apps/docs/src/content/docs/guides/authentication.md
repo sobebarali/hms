@@ -7,6 +7,82 @@ description: Understanding authentication, authorization, and access control in 
 
 HMS uses OAuth2 with JWT tokens for authentication and implements both Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) for authorization.
 
+## Complete Multi-Tenant Flow
+
+### Hospital Onboarding to First Login
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    COMPLETE MULTI-TENANT FLOW                        │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  PHASE 1: Hospital Onboarding                                        │
+│  ─────────────────────────────                                       │
+│                                                                      │
+│  1. POST /api/hospitals (register)                                   │
+│     └─ Creates hospital with status: PENDING                         │
+│     └─ Sends verification email                                      │
+│                                                                      │
+│  2. POST /api/hospitals/:id/verify (verify token)                    │
+│     └─ Updates status to VERIFIED                                    │
+│     └─ AUTO-PROVISIONS TENANT:                                       │
+│        ├─ Seed system roles (HOSPITAL_ADMIN, DOCTOR, etc.)          │
+│        ├─ Create default Administration department                  │
+│        ├─ Create admin User + Account with temp password            │
+│        ├─ Create Staff linking admin to hospital                    │
+│        └─ Send welcome email with credentials                       │
+│                                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  PHASE 2: User Login                                                 │
+│  ───────────────────                                                 │
+│                                                                      │
+│  3. POST /api/auth/token                                             │
+│     {                                                                │
+│       "grant_type": "password",                                      │
+│       "username": "admin@hospital.com",                              │
+│       "password": "temp-password-from-email",                        │
+│       "tenant_id": "hospital-uuid"                                   │
+│     }                                                                │
+│                                                                      │
+│     Validation Chain:                                                │
+│     ├─ Check account not locked (Redis)                             │
+│     ├─ Verify hospital exists & is ACTIVE/VERIFIED                  │
+│     ├─ Find user by email                                           │
+│     ├─ Verify password (bcrypt)                                     │
+│     ├─ Find Staff record for user + tenant                          │
+│     ├─ Verify Staff status is ACTIVE                                │
+│     └─ Load roles and aggregate permissions                         │
+│                                                                      │
+│     Response:                                                        │
+│     {                                                                │
+│       "access_token": "...",                                         │
+│       "refresh_token": "...",                                        │
+│       "expires_in": 3600                                             │
+│     }                                                                │
+│                                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  PHASE 3: Authenticated Requests                                     │
+│  ───────────────────────────────                                     │
+│                                                                      │
+│  4. GET /api/users (any protected endpoint)                          │
+│     Headers: Authorization: Bearer <access_token>                    │
+│                                                                      │
+│     Middleware Chain:                                                │
+│     ├─ authenticate.ts                                              │
+│     │   └─ Extract token → Redis lookup → populate req.user         │
+│     │   └─ req.user = { id, tenantId, roles, permissions }          │
+│     │                                                                │
+│     ├─ authorize("USER:READ")                                       │
+│     │   └─ Check permissions array includes required permission     │
+│     │                                                                │
+│     └─ Controller                                                   │
+│         └─ Uses req.user.tenantId for all queries                   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
 ## Authentication Flow
 
 ### Login Process
@@ -136,6 +212,60 @@ Every request includes tenant context:
 2. Middleware extracts tenant
 3. All queries scoped to tenant
 4. Cross-tenant access blocked
+
+### How TenantId Flows Through the System
+
+```
+┌────────────────┐    tenant_id in     ┌─────────────────┐
+│  Login Request │ ─────────────────▶  │  Token Service  │
+└────────────────┘    request body     └────────┬────────┘
+                                                │
+                                                ▼
+                                       ┌─────────────────┐
+                                       │  Redis Cache    │
+                                       │  session:{token}│
+                                       │  { tenantId,    │
+                                       │    userId,      │
+                                       │    permissions }│
+                                       └────────┬────────┘
+                                                │
+┌────────────────┐    Authorization    ┌────────▼────────┐
+│  API Request   │ ─────────────────▶  │  Authenticate   │
+│  Bearer token  │                     │  Middleware     │
+└────────────────┘                     └────────┬────────┘
+                                                │
+                                                ▼
+                                       ┌─────────────────┐
+                                       │  req.user = {   │
+                                       │    tenantId,    │
+                                       │    roles,       │
+                                       │    permissions  │
+                                       │  }              │
+                                       └────────┬────────┘
+                                                │
+                                                ▼
+                                       ┌─────────────────┐
+                                       │  All Queries    │
+                                       │  Scoped by      │
+                                       │  tenantId       │
+                                       └─────────────────┘
+```
+
+### Users in Multiple Tenants
+
+A single user (by email) can belong to multiple hospitals with different roles:
+
+| Hospital | Staff Record | Role |
+|----------|--------------|------|
+| City General Hospital | staff-123 | DOCTOR |
+| County Clinic | staff-456 | HOSPITAL_ADMIN |
+| Rural Health Center | staff-789 | NURSE |
+
+When logging in, the user specifies which hospital via `tenant_id`. The system then:
+1. Finds the Staff record for that user + tenant combination
+2. Loads the roles assigned to that Staff record
+3. Aggregates permissions from all assigned roles
+4. Caches the session with tenant-specific context
 
 ### Tenant in Requests
 

@@ -10,6 +10,7 @@ import {
 	updateHospitalVerification,
 } from "../repositories/verify.hospital.repository";
 import type { VerifyHospitalOutput } from "../validations/verify.hospital.validation";
+import { provisionTenant } from "./provision-tenant.hospital.service";
 
 const logger = createServiceLogger("verifyHospital");
 
@@ -134,10 +135,27 @@ export async function verifyHospital({
 			"Hospital cache invalidated and verification token removed from Redis",
 		);
 
+		// Provision tenant: seed roles, create default department, create admin user
+		logger.info({ hospitalId: id }, "Starting tenant provisioning");
+		const provisioningResult = await provisionTenant({
+			tenantId: id,
+			hospitalName: hospital.name,
+			adminEmail: hospital.adminEmail,
+			adminPhone: hospital.adminPhone,
+		});
+
+		logger.info(
+			{
+				hospitalId: id,
+				provisioningResult,
+			},
+			"Tenant provisioning completed",
+		);
+
 		return {
 			id: String(updatedHospital._id),
 			status: (updatedHospital.status as string) || "VERIFIED",
-			message: "Hospital verified successfully",
+			message: "Hospital verified and provisioned successfully",
 		};
 	} catch (error) {
 		logError(logger, error, "Failed to verify hospital", {
