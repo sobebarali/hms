@@ -1,8 +1,8 @@
 import { Role } from "@hms/db";
+import { RoleNames } from "../../../constants";
 import { getWelcomeEmailTemplate } from "../../../lib/email/templates/welcome";
 import { createServiceLogger, logError } from "../../../lib/logger";
 import { sendEmail } from "../../../lib/mailer";
-import { RoleNames } from "../../../lib/permissions";
 import { seedSystemRoles } from "../../../lib/seed/system-roles.seed";
 import {
 	generateTemporaryPassword,

@@ -1,7 +1,7 @@
 import { Hospital } from "@hms/db";
 import type { NextFunction, Request, Response } from "express";
+import { hasPermission, type Permission } from "../constants";
 import { createMiddlewareLogger } from "../lib/logger";
-import { hasPermission, type Permission } from "../lib/permissions";
 
 const logger = createMiddlewareLogger("authorize");
 

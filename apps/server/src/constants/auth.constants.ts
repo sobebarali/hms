@@ -1,8 +1,8 @@
 /**
- * Shared authentication configuration constants
+ * Authentication constants
  *
- * These constants are used across the HMS authentication system.
- * The actual auth implementation (OAuth2 token flow) is in apps/server/src/apis/auth/
+ * Token configuration, grant types, and auth-specific error codes
+ * Used by the OAuth2 implementation in apis/auth/
  */
 
 // Token configuration
@@ -18,14 +18,14 @@ export const TOKEN_TYPES = {
 	BEARER: "Bearer",
 } as const;
 
-// Grant types
+// Grant types for OAuth2
 export const GRANT_TYPES = {
 	PASSWORD: "password",
 	REFRESH_TOKEN: "refresh_token",
 	AUTHORIZATION_CODE: "authorization_code",
 } as const;
 
-// Auth error codes
+// Auth-specific error codes
 export const AUTH_ERROR_CODES = {
 	INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
 	INVALID_TOKEN: "INVALID_TOKEN",

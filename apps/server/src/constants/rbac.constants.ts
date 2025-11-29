@@ -1,6 +1,8 @@
 /**
- * Permission constants following RESOURCE:ACTION pattern
- * Used for RBAC permission checking
+ * RBAC (Role-Based Access Control) constants
+ *
+ * Resources, actions, permissions, roles, and hierarchy
+ * Used for authorization checks across the application
  */
 
 // Resources

@@ -1,7 +1,7 @@
 import { Role } from "@hms/db";
 import { v4 as uuidv4 } from "uuid";
+import { RoleNames, RolePermissions } from "../../constants";
 import { createServiceLogger } from "../logger";
-import { RoleNames, RolePermissions } from "../permissions";
 
 const logger = createServiceLogger("systemRolesSeed");
 

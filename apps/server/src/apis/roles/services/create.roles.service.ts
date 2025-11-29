@@ -1,10 +1,10 @@
-import { createServiceLogger } from "../../../lib/logger";
 import {
 	hasHigherOrEqualAuthority,
 	type Permission,
 	type RoleName,
 	RolePermissions,
-} from "../../../lib/permissions";
+} from "../../../constants";
+import { createServiceLogger } from "../../../lib/logger";
 import {
 	createRole,
 	findRoleByName,
