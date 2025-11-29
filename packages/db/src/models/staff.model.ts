@@ -12,6 +12,7 @@ export const StaffShift = {
 export const StaffStatus = {
 	ACTIVE: "ACTIVE",
 	INACTIVE: "INACTIVE",
+	PASSWORD_EXPIRED: "PASSWORD_EXPIRED",
 } as const;
 
 // Main schema
@@ -37,6 +38,8 @@ const staffSchema = new Schema(
 			default: StaffStatus.ACTIVE,
 		},
 		lastLogin: { type: Date },
+		deactivatedAt: { type: Date },
+		passwordHistory: [{ type: String }],
 		createdAt: { type: Date, required: true },
 		updatedAt: { type: Date, required: true },
 	},

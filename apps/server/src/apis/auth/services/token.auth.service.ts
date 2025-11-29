@@ -203,6 +203,16 @@ async function handlePasswordGrant({
 			{ staffId: staff._id, status: staff.status },
 			"Staff is not active",
 		);
+
+		if (staff.status === "PASSWORD_EXPIRED") {
+			throw {
+				status: 403,
+				code: "PASSWORD_EXPIRED",
+				message:
+					"Your password has expired. Please reset your password to continue.",
+			};
+		}
+
 		throw {
 			status: 403,
 			code: "ACCOUNT_LOCKED",

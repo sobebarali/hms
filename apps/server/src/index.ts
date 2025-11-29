@@ -7,6 +7,7 @@ import express from "express";
 import authRoutes from "./apis/auth/auth.routes";
 import hospitalRoutes from "./apis/hospital/hospital.routes";
 import rolesRoutes from "./apis/roles/roles.routes";
+import usersRoutes from "./apis/users/users.routes";
 import { logger } from "./lib/logger";
 import { errorHandler } from "./middlewares/error-handler";
 import { requestContext } from "./middlewares/request-context";
@@ -45,6 +46,7 @@ app.use("/api/auth", authRoutes);
 app.all("/api/auth{/*path}", toNodeHandler(auth));
 app.use("/api/roles", rolesRoutes);
 app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/users", usersRoutes);
 
 app.get("/", (_req, res) => {
 	res.status(200).send("OK");

@@ -8,11 +8,16 @@ const logger = createMiddlewareLogger("validation");
 export function validate(schema: ZodObject<any>) {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			await schema.parseAsync({
+			const result = await schema.parseAsync({
 				body: req.body,
 				query: req.query,
 				params: req.params,
 			});
+
+			// Update req with parsed/coerced values
+			if (result.body) req.body = result.body;
+			if (result.query) Object.assign(req.query, result.query);
+			if (result.params) Object.assign(req.params, result.params);
 
 			logger.debug(
 				{
