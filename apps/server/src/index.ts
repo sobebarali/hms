@@ -10,6 +10,7 @@ import patientsRoutes from "./apis/patients/patients.routes";
 import prescriptionsRoutes from "./apis/prescriptions/prescriptions.routes";
 import rolesRoutes from "./apis/roles/roles.routes";
 import usersRoutes from "./apis/users/users.routes";
+import vitalsRoutes from "./apis/vitals/vitals.routes";
 import { logger } from "./lib/logger";
 import { errorHandler } from "./middlewares/error-handler";
 import { requestContext } from "./middlewares/request-context";
@@ -48,6 +49,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/patients", patientsRoutes);
 app.use("/api/prescriptions", prescriptionsRoutes);
 app.use("/api/menu", menuRoutes);
+app.use("/api/vitals", vitalsRoutes);
 
 app.get("/", (_req, res) => {
 	res.status(200).send("OK");

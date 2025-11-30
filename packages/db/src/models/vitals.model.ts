@@ -95,6 +95,7 @@ const vitalsSchema = new Schema(
 		tenantId: { type: String, ref: "Hospital", required: true },
 		patientId: { type: String, ref: "Patient", required: true },
 		appointmentId: { type: String, ref: "Appointment" },
+		admissionId: { type: String, ref: "Admission" },
 		temperature: { type: temperatureSchema },
 		bloodPressure: { type: bloodPressureSchema },
 		heartRate: { type: Number },
@@ -106,6 +107,7 @@ const vitalsSchema = new Schema(
 		bloodGlucose: { type: bloodGlucoseSchema },
 		painLevel: { type: Number, min: 0, max: 10 },
 		notes: { type: String },
+		correctionReason: { type: String }, // Reason for correction when notes are updated
 		alerts: [{ type: alertSchema }],
 		recordedBy: { type: String, ref: "Staff", required: true },
 		recordedAt: { type: Date, required: true },
@@ -121,6 +123,7 @@ const vitalsSchema = new Schema(
 // Indexes
 vitalsSchema.index({ tenantId: 1, patientId: 1, recordedAt: -1 });
 vitalsSchema.index({ tenantId: 1, appointmentId: 1 });
+vitalsSchema.index({ tenantId: 1, admissionId: 1 });
 vitalsSchema.index({ tenantId: 1, recordedAt: -1 });
 vitalsSchema.index({ tenantId: 1, "alerts.severity": 1 });
 
