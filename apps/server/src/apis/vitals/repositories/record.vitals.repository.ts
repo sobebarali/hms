@@ -43,7 +43,7 @@ export async function createVitals({
 
 		logger.debug({ id, tenantId, patientId }, "Creating vitals record");
 
-		const vitals = await Vitals.create({
+		await Vitals.create({
 			_id: id,
 			tenantId,
 			patientId,
@@ -66,6 +66,12 @@ export async function createVitals({
 			createdAt: now,
 			updatedAt: now,
 		});
+
+		// Re-fetch to trigger decryption hooks (create doesn't decrypt)
+		const vitals = await Vitals.findById(id);
+		if (!vitals) {
+			throw new Error("Failed to retrieve created vitals record");
+		}
 
 		logDatabaseOperation(
 			logger,

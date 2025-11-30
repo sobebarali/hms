@@ -12,13 +12,19 @@ import type { HistoryReportsInput } from "../validations/history.reports.validat
  */
 export async function getReportHistory({
 	tenantId,
-	page,
-	limit,
+	page = 1,
+	limit = 20,
 	reportType,
 	startDate,
 	endDate,
 }: HistoryReportsInput) {
 	const query: Record<string, unknown> = { tenantId };
+
+	// Ensure page and limit are valid numbers with defaults
+	const safePage =
+		Number(page) && !Number.isNaN(Number(page)) ? Number(page) : 1;
+	const safeLimit =
+		Number(limit) && !Number.isNaN(Number(limit)) ? Number(limit) : 20;
 
 	if (reportType) {
 		query.reportType = reportType;
@@ -34,7 +40,7 @@ export async function getReportHistory({
 		}
 	}
 
-	const skip = (page - 1) * limit;
+	const skip = (safePage - 1) * safeLimit;
 
 	const [data, total] = await Promise.all([
 		Report.find(query)
@@ -50,7 +56,7 @@ export async function getReportHistory({
 			})
 			.sort({ createdAt: -1 })
 			.skip(skip)
-			.limit(limit)
+			.limit(safeLimit)
 			.lean(),
 		Report.countDocuments(query),
 	]);
@@ -59,7 +65,7 @@ export async function getReportHistory({
 		data: data.map((r) => ({
 			reportId: r._id as string,
 			reportType: r.reportType,
-			parameters: r.parameters as Record<string, unknown>,
+			parameters: (r.parameters as Record<string, unknown>) ?? {},
 			format: r.format,
 			generatedBy: r.generatedBy as { id: string; name: string },
 			generatedAt: r.generatedAt?.toISOString() ?? "",
@@ -67,10 +73,10 @@ export async function getReportHistory({
 			status: r.status,
 		})),
 		pagination: {
-			page: Number(page),
-			limit: Number(limit),
+			page: safePage,
+			limit: safeLimit,
 			total,
-			totalPages: total > 0 ? Math.ceil(total / limit) : 0,
+			totalPages: total > 0 ? Math.ceil(total / safeLimit) : 0,
 		},
 	};
 }

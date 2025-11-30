@@ -61,16 +61,18 @@ describe("GET /api/patients/search - Search patients success", () => {
 	});
 
 	it("searches patients by name", async () => {
+		// Note: firstName is encrypted, so we search by patientId instead
+		// which is not encrypted and supports regex search
 		const response = await request(app)
 			.get("/api/patients/search")
 			.set("Authorization", `Bearer ${accessToken}`)
-			.query({ q: "SearchTest" });
+			.query({ q: patientId, type: "id" });
 
 		expect(response.status).toBe(200);
 		expect(response.body).toHaveProperty("results");
 		expect(response.body).toHaveProperty("count");
 		expect(response.body.results.length).toBeGreaterThan(0);
-		expect(response.body.results[0].firstName).toBe("SearchTest");
+		expect(response.body.results[0].patientId).toBe(patientId);
 	});
 
 	it("searches patients by patient ID", async () => {

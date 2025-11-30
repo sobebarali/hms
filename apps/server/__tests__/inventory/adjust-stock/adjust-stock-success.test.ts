@@ -52,7 +52,7 @@ describe("POST /api/inventory/:id/adjust - Adjust stock success", () => {
 					quantity: 100,
 					expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
 					purchasePrice: 10.0,
-					addedAt: new Date(),
+					receivedDate: new Date(),
 				},
 			],
 			createdAt: new Date(),
@@ -98,7 +98,8 @@ describe("POST /api/inventory/:id/adjust - Adjust stock success", () => {
 		}).lean();
 		expect(transaction).not.toBeNull();
 		expect(transaction?.quantity).toBe(10);
-		expect(transaction?.reason).toBe("CORRECTION");
+		// Transaction reason includes notes if provided
+		expect(transaction?.reason).toContain("CORRECTION");
 	});
 
 	it("adjusts stock with negative adjustment (DAMAGE)", async () => {

@@ -42,6 +42,7 @@ export async function findPatientById({
 
 /**
  * Find patient by email within a tenant
+ * Note: Email is encrypted, so we need to find all patients and filter after decryption
  */
 export async function findPatientByEmail({
 	tenantId,
@@ -53,10 +54,17 @@ export async function findPatientByEmail({
 	try {
 		logger.debug({ tenantId, email }, "Finding patient by email");
 
-		const patient = await Patient.findOne({
+		// Find all patients with email field set (non-null)
+		// The post-find hook will decrypt the emails
+		const patients = await Patient.find({
 			tenantId,
-			email,
+			email: { $exists: true, $ne: null },
 		}).lean();
+
+		// Filter by decrypted email (case-insensitive)
+		const patient =
+			patients.find((p) => p.email?.toLowerCase() === email.toLowerCase()) ||
+			null;
 
 		logDatabaseOperation(
 			logger,
@@ -75,6 +83,7 @@ export async function findPatientByEmail({
 
 /**
  * Find patient by phone within a tenant
+ * Note: Phone is encrypted, so we need to find all patients and filter after decryption
  */
 export async function findPatientByPhone({
 	tenantId,
@@ -86,10 +95,15 @@ export async function findPatientByPhone({
 	try {
 		logger.debug({ tenantId, phone }, "Finding patient by phone");
 
-		const patient = await Patient.findOne({
+		// Find all patients in the tenant
+		// The post-find hook will decrypt the phone numbers
+		const patients = await Patient.find({
 			tenantId,
-			phone,
+			phone: { $exists: true, $ne: null },
 		}).lean();
+
+		// Filter by decrypted phone (exact match)
+		const patient = patients.find((p) => p.phone === phone) || null;
 
 		logDatabaseOperation(
 			logger,

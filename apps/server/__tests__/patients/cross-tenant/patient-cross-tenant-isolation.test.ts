@@ -12,6 +12,7 @@ describe("Patient API - Cross-tenant isolation", () => {
 	let tenantB: AuthTestContext;
 	let accessTokenA: string;
 	let accessTokenB: string;
+	let patientDocIdFromTenantA: string;
 	let patientIdFromTenantA: string;
 
 	beforeAll(async () => {
@@ -68,12 +69,13 @@ describe("Patient API - Cross-tenant isolation", () => {
 			.set("Authorization", `Bearer ${accessTokenA}`)
 			.send(payload);
 
-		patientIdFromTenantA = response.body.id;
+		patientDocIdFromTenantA = response.body.id;
+		patientIdFromTenantA = response.body.patientId;
 	}, 60000);
 
 	afterAll(async () => {
-		if (patientIdFromTenantA) {
-			await Patient.deleteOne({ _id: patientIdFromTenantA });
+		if (patientDocIdFromTenantA) {
+			await Patient.deleteOne({ _id: patientDocIdFromTenantA });
 		}
 		await tenantA.cleanup();
 		await tenantB.cleanup();
@@ -82,7 +84,7 @@ describe("Patient API - Cross-tenant isolation", () => {
 	describe("GET /api/patients/:id - Cross-tenant access prevention", () => {
 		it("returns 404 when Tenant B tries to access Tenant A patient", async () => {
 			const response = await request(app)
-				.get(`/api/patients/${patientIdFromTenantA}`)
+				.get(`/api/patients/${patientDocIdFromTenantA}`)
 				.set("Authorization", `Bearer ${accessTokenB}`);
 
 			// Should return 404 because the patient doesn't exist in Tenant B's scope
@@ -92,18 +94,18 @@ describe("Patient API - Cross-tenant isolation", () => {
 
 		it("returns 200 when Tenant A accesses its own patient", async () => {
 			const response = await request(app)
-				.get(`/api/patients/${patientIdFromTenantA}`)
+				.get(`/api/patients/${patientDocIdFromTenantA}`)
 				.set("Authorization", `Bearer ${accessTokenA}`);
 
 			expect(response.status).toBe(200);
-			expect(response.body.id).toBe(patientIdFromTenantA);
+			expect(response.body.id).toBe(patientDocIdFromTenantA);
 		});
 	});
 
 	describe("PATCH /api/patients/:id - Cross-tenant modification prevention", () => {
 		it("returns 404 when Tenant B tries to update Tenant A patient", async () => {
 			const response = await request(app)
-				.patch(`/api/patients/${patientIdFromTenantA}`)
+				.patch(`/api/patients/${patientDocIdFromTenantA}`)
 				.set("Authorization", `Bearer ${accessTokenB}`)
 				.send({ phone: "+1-hacked-phone" });
 
@@ -115,7 +117,7 @@ describe("Patient API - Cross-tenant isolation", () => {
 		it("successfully updates when Tenant A updates its own patient", async () => {
 			const newPhone = `+1-updated-${tenantA.uniqueId}`;
 			const response = await request(app)
-				.patch(`/api/patients/${patientIdFromTenantA}`)
+				.patch(`/api/patients/${patientDocIdFromTenantA}`)
 				.set("Authorization", `Bearer ${accessTokenA}`)
 				.send({ phone: newPhone });
 
@@ -135,7 +137,7 @@ describe("Patient API - Cross-tenant isolation", () => {
 
 			// Verify no patient from Tenant A appears in Tenant B's list
 			const patientIds = response.body.data.map((p: { id: string }) => p.id);
-			expect(patientIds).not.toContain(patientIdFromTenantA);
+			expect(patientIds).not.toContain(patientDocIdFromTenantA);
 		});
 
 		it("Tenant A list includes its own patients", async () => {
@@ -147,29 +149,31 @@ describe("Patient API - Cross-tenant isolation", () => {
 			expect(response.status).toBe(200);
 
 			const patientIds = response.body.data.map((p: { id: string }) => p.id);
-			expect(patientIds).toContain(patientIdFromTenantA);
+			expect(patientIds).toContain(patientDocIdFromTenantA);
 		});
 	});
 
 	describe("GET /api/patients/search - Cross-tenant search isolation", () => {
 		it("Tenant B search does not return Tenant A patients", async () => {
+			// Search by the patient ID (not encrypted) instead of name (encrypted)
 			const response = await request(app)
 				.get("/api/patients/search")
 				.set("Authorization", `Bearer ${accessTokenB}`)
-				.query({ q: "TenantA" });
+				.query({ q: patientIdFromTenantA, type: "id" });
 
 			expect(response.status).toBe(200);
 
 			// Verify no patient from Tenant A appears in Tenant B's search
-			const patientIds = response.body.results.map((p: { id: string }) => p.id);
-			expect(patientIds).not.toContain(patientIdFromTenantA);
+			const docIds = response.body.results.map((p: { id: string }) => p.id);
+			expect(docIds).not.toContain(patientDocIdFromTenantA);
 		});
 
 		it("Tenant A search returns its own patients", async () => {
+			// Search by the patient ID (not encrypted) instead of name (encrypted)
 			const response = await request(app)
 				.get("/api/patients/search")
 				.set("Authorization", `Bearer ${accessTokenA}`)
-				.query({ q: "TenantA" });
+				.query({ q: patientIdFromTenantA, type: "id" });
 
 			expect(response.status).toBe(200);
 			expect(response.body.results.length).toBeGreaterThan(0);

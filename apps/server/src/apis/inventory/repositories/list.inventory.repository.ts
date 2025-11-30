@@ -54,52 +54,92 @@ export async function listInventory({
 	try {
 		logger.debug({ tenantId, page, limit }, "Listing inventory");
 
-		// Build query
-		const query: Record<string, unknown> = { tenantId };
+		// Build match query
+		const matchQuery: Record<string, unknown> = { tenantId };
 
 		// Filter by medicine IDs (from search)
 		if (medicineIds && medicineIds.length > 0) {
-			query.medicineId = { $in: medicineIds };
+			matchQuery.medicineId = { $in: medicineIds };
 		}
 
 		// Status-based filtering
 		if (status === "OUT_OF_STOCK") {
-			query.currentStock = 0;
+			matchQuery.currentStock = 0;
 		} else if (status === "LOW_STOCK") {
-			query.$expr = {
+			matchQuery.$expr = {
 				$and: [
 					{ $gt: ["$currentStock", 0] },
 					{ $lte: ["$currentStock", "$reorderLevel"] },
 				],
 			};
 		} else if (status === "IN_STOCK") {
-			query.$expr = { $gt: ["$currentStock", "$reorderLevel"] };
+			matchQuery.$expr = { $gt: ["$currentStock", "$reorderLevel"] };
 		} else if (status === "EXPIRING" || expiringWithin) {
 			const days = expiringWithin || INVENTORY_DEFAULTS.EXPIRY_ALERT_DAYS;
 			const expiryThreshold = new Date();
 			expiryThreshold.setDate(expiryThreshold.getDate() + days);
-			query["batches.expiryDate"] = { $lte: expiryThreshold };
+			matchQuery["batches.expiryDate"] = { $lte: expiryThreshold };
 		}
 
-		// Build sort - note: sorting by medicine name requires aggregation
-		const sort: Record<string, 1 | -1> = {};
-		if (
-			sortBy === "name" ||
-			sortBy === "currentStock" ||
-			sortBy === "lastRestocked"
-		) {
-			sort[sortBy === "name" ? "medicineId" : sortBy] =
-				sortOrder === "asc" ? 1 : -1;
-		} else {
-			sort.createdAt = sortOrder === "asc" ? 1 : -1;
-		}
-
-		// Execute query with pagination
 		const skip = (page - 1) * limit;
+		const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+		// Use aggregation when sorting by name to properly sort by medicine name
+		if (sortBy === "name") {
+			const pipeline = [
+				{ $match: matchQuery },
+				{
+					$lookup: {
+						from: "medicine",
+						localField: "medicineId",
+						foreignField: "_id",
+						as: "medicine",
+					},
+				},
+				{ $unwind: { path: "$medicine", preserveNullAndEmptyArrays: true } },
+				{ $sort: { "medicine.name": sortDirection as 1 | -1 } },
+				{ $skip: skip },
+				{ $limit: limit },
+				{
+					$project: {
+						medicine: 0, // Remove the joined medicine field
+					},
+				},
+			];
+
+			const [inventoryItems, countResult] = await Promise.all([
+				Inventory.aggregate(pipeline),
+				Inventory.countDocuments(matchQuery),
+			]);
+
+			logDatabaseOperation(
+				logger,
+				"aggregate",
+				"inventory",
+				{ tenantId, page, limit, sortBy },
+				{ found: inventoryItems.length, total: countResult },
+			);
+
+			return {
+				inventoryItems: inventoryItems as unknown as InventoryLean[],
+				total: countResult,
+				page,
+				limit,
+				totalPages: Math.ceil(countResult / limit),
+			};
+		}
+
+		// For other sort fields, use simple find query
+		const sort: Record<string, 1 | -1> = {};
+		if (sortBy === "currentStock" || sortBy === "lastRestocked") {
+			sort[sortBy] = sortDirection as 1 | -1;
+		} else {
+			sort.createdAt = sortDirection as 1 | -1;
+		}
 
 		const [inventoryItems, total] = await Promise.all([
-			Inventory.find(query).sort(sort).skip(skip).limit(limit).lean(),
-			Inventory.countDocuments(query),
+			Inventory.find(matchQuery).sort(sort).skip(skip).limit(limit).lean(),
+			Inventory.countDocuments(matchQuery),
 		]);
 
 		logDatabaseOperation(

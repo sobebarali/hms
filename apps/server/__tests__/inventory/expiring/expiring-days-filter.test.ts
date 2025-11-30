@@ -55,21 +55,21 @@ describe("GET /api/inventory/expiring - Days Filter", () => {
 					quantity: 50,
 					expiryDate: expiringIn5Days,
 					purchasePrice: 10.0,
-					addedAt: new Date(),
+					receivedDate: new Date(),
 				},
 				{
 					batchNumber: `BATCH-EXPF-20-${context.uniqueId}`,
 					quantity: 50,
 					expiryDate: expiringIn20Days,
 					purchasePrice: 10.0,
-					addedAt: new Date(),
+					receivedDate: new Date(),
 				},
 				{
 					batchNumber: `BATCH-EXPF-45-${context.uniqueId}`,
 					quantity: 50,
 					expiryDate: expiringIn45Days,
 					purchasePrice: 10.0,
-					addedAt: new Date(),
+					receivedDate: new Date(),
 				},
 			],
 			createdAt: new Date(),
@@ -134,7 +134,8 @@ describe("GET /api/inventory/expiring - Days Filter", () => {
 		// Verify at least one batch from our test data is included
 		const hasTestBatch = response.body.items.some(
 			(item: { batchNumber: string }) =>
-				item.batchNumber.includes(`EXPF-${context.uniqueId}`),
+				item.batchNumber.includes("BATCH-EXPF") &&
+				item.batchNumber.includes(context.uniqueId),
 		);
 
 		if (response.body.total > 0) {

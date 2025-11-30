@@ -52,7 +52,7 @@ export async function createPrescription({
 			dispensedQuantity: 0,
 		}));
 
-		const prescription = await Prescription.create({
+		await Prescription.create({
 			_id: id,
 			tenantId,
 			prescriptionId,
@@ -67,6 +67,12 @@ export async function createPrescription({
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
+
+		// Re-fetch to trigger decryption hooks (create doesn't decrypt)
+		const prescription = await Prescription.findById(id);
+		if (!prescription) {
+			throw new Error("Failed to retrieve created prescription");
+		}
 
 		logDatabaseOperation(
 			logger,

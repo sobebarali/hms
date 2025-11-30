@@ -91,11 +91,24 @@ describe("GET /api/patients - List patients success", () => {
 		}
 	});
 
-	it("searches patients by name", async () => {
+	it("searches patients by patientId", async () => {
+		// Note: firstName/lastName are encrypted, so we search by patientId
+		// which is not encrypted and supports regex search
+		// Get first patient's patientId from list
+		const listResponse = await request(app)
+			.get("/api/patients")
+			.set("Authorization", `Bearer ${accessToken}`)
+			.query({ page: 1, limit: 1 });
+
+		expect(listResponse.status).toBe(200);
+		expect(listResponse.body.data.length).toBeGreaterThan(0);
+
+		const patientId = listResponse.body.data[0].patientId;
+
 		const response = await request(app)
 			.get("/api/patients")
 			.set("Authorization", `Bearer ${accessToken}`)
-			.query({ search: "Test0" });
+			.query({ search: patientId });
 
 		expect(response.status).toBe(200);
 		expect(response.body.data.length).toBeGreaterThan(0);

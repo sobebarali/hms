@@ -106,7 +106,7 @@ describe("GET /api/inventory/transactions - Filters", () => {
 				_id: uuidv4(),
 				tenantId: context.hospitalId,
 				inventoryId: inventoryId1,
-				type: "DISPENSED",
+				type: "DISPENSING",
 				quantity: -10,
 				reference: `TXN-FILT-D1-${context.uniqueId}`,
 				performedBy: context.staffId,

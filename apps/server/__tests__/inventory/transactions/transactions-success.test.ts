@@ -71,7 +71,7 @@ describe("GET /api/inventory/transactions - Success", () => {
 				_id: uuidv4(),
 				tenantId: context.hospitalId,
 				inventoryId,
-				type: "DISPENSED",
+				type: "DISPENSING",
 				quantity: -10,
 				reference: `TXN-2-${context.uniqueId}`,
 				performedBy: context.staffId,

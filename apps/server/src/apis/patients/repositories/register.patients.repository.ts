@@ -38,7 +38,7 @@ export async function createPatient({
 
 		logger.debug({ id, tenantId, patientId }, "Creating patient");
 
-		const patient = await Patient.create({
+		await Patient.create({
 			_id: id,
 			tenantId,
 			patientId,
@@ -59,6 +59,12 @@ export async function createPatient({
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
+
+		// Re-fetch to trigger decryption hooks (create doesn't decrypt)
+		const patient = await Patient.findById(id);
+		if (!patient) {
+			throw new Error("Failed to retrieve created patient");
+		}
 
 		logDatabaseOperation(
 			logger,
