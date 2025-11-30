@@ -9,36 +9,6 @@ import {
 const logger = createRepositoryLogger("createRole");
 
 /**
- * Check if role name already exists for tenant
- */
-export async function findRoleByName({
-	tenantId,
-	name,
-}: {
-	tenantId: string;
-	name: string;
-}) {
-	try {
-		logger.debug({ tenantId, name }, "Checking for existing role");
-
-		const role = await Role.findOne({ tenantId, name }).lean();
-
-		logDatabaseOperation(
-			logger,
-			"findOne",
-			"role",
-			{ tenantId, name },
-			role ? { _id: role._id, found: true } : { found: false },
-		);
-
-		return role;
-	} catch (error) {
-		logError(logger, error, "Failed to check for existing role");
-		throw error;
-	}
-}
-
-/**
  * Create a new role
  */
 export async function createRole({

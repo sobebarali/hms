@@ -6,10 +6,8 @@ import {
 } from "../../../constants";
 import { ConflictError, ForbiddenError } from "../../../errors";
 import { createServiceLogger } from "../../../lib/logger";
-import {
-	createRole,
-	findRoleByName,
-} from "../repositories/create.roles.repository";
+import { createRole } from "../repositories/create.roles.repository";
+import { findRoleByName } from "../repositories/shared.roles.repository";
 import type {
 	CreateRoleInput,
 	CreateRoleOutput,
