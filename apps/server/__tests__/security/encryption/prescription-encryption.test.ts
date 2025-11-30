@@ -201,8 +201,11 @@ describe("Prescription Model - Field Encryption", () => {
 
 		// Medicines array should not be encrypted
 		expect(prescription?.medicines).toBeDefined();
-		expect(prescription?.medicines?.[0]?.name).toBe("Metformin");
-		expect(prescription?.medicines?.[0]?.dosage).toBe("500mg");
+		const firstMedicine = prescription?.medicines?.[0] as
+			| { name: string; dosage: string }
+			| undefined;
+		expect(firstMedicine?.name).toBe("Metformin");
+		expect(firstMedicine?.dosage).toBe("500mg");
 
 		// Verify they don't have "enc:" prefix
 		expect(prescription?.prescriptionId).not.toMatch(/^enc:/);

@@ -7,6 +7,15 @@ description: API reference for OAuth2 authentication, JWT tokens, RBAC, and ABAC
 
 The Authentication API implements OAuth2 with JWT tokens for secure user authentication and authorization. The system supports Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC).
 
+### Supported Grant Types
+
+| Grant Type | Status | Use Case |
+|------------|--------|----------|
+| Password | ✅ Available | First-party apps (web, mobile) |
+| Refresh Token | ✅ Available | Token renewal without re-authentication |
+| MFA | ✅ Available | Two-factor authentication flow |
+| Authorization Code | 🔮 Planned | Third-party integrations |
+
 ---
 
 ## Get Token
@@ -32,7 +41,9 @@ Varies by grant type
 
 **Important:** The `tenant_id` is required because users can belong to multiple hospitals. The system loads roles and permissions specific to the selected tenant.
 
-#### Authorization Code Grant
+#### Authorization Code Grant 🔮 *Planned*
+
+> **Note:** This grant type is planned for future implementation to support third-party integrations. Currently not available.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -40,6 +51,8 @@ Varies by grant type
 | code | string | Yes | Authorization code |
 | redirect_uri | string | Yes | Redirect URI |
 | client_id | string | Yes | OAuth client ID |
+
+*Use Case:* Required when external applications need to access the API on behalf of users (e.g., third-party EHR integrations, partner lab systems).
 
 #### Refresh Token Grant
 

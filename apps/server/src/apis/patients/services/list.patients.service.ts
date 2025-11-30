@@ -1,4 +1,4 @@
-import { BadRequestError } from "../../../errors";
+import { BadRequestError, ForbiddenError } from "../../../errors";
 import { createServiceLogger } from "../../../lib/logger";
 import { listPatients } from "../repositories/list.patients.repository";
 import { findDepartmentsByIds } from "../repositories/shared.patients.repository";
@@ -11,9 +11,13 @@ const logger = createServiceLogger("listPatients");
 
 /**
  * List patients within the hospital tenant
+ * Applies ABAC filtering based on user role and department
  */
 export async function listPatientsService({
 	tenantId,
+	userRoles,
+	userDepartment,
+	userId,
 	page: pageParam,
 	limit: limitParam,
 	patientType,
@@ -27,6 +31,9 @@ export async function listPatientsService({
 	sortOrder: sortOrderParam,
 }: {
 	tenantId: string;
+	userRoles: string[];
+	userDepartment?: string;
+	userId: string;
 } & ListPatientsInput): Promise<{
 	data: ListPatientsOutput[];
 	total: number;
@@ -43,6 +50,40 @@ export async function listPatientsService({
 	const limit = Number(limitParam) || 20;
 	const sortBy = sortByParam || "createdAt";
 	const sortOrder = sortOrderParam || "desc";
+
+	// ABAC: Determine effective filters based on user role
+	let effectiveDepartment = department;
+	let effectiveAssignedDoctor = assignedDoctor;
+
+	const isAdmin =
+		userRoles.includes("SUPER_ADMIN") || userRoles.includes("HOSPITAL_ADMIN");
+	const isDoctor = userRoles.includes("DOCTOR");
+
+	// Doctors can only view patients in their department or assigned to them
+	if (isDoctor && !isAdmin) {
+		if (!userDepartment) {
+			// Doctor without department assignment - can only see assigned patients
+			effectiveAssignedDoctor = userId;
+			logger.info(
+				{ userId },
+				"ABAC: Doctor without department, restricting to assigned patients",
+			);
+		} else {
+			// Doctor with department - restrict to their department
+			// If they requested a different department, deny
+			if (department && department !== userDepartment) {
+				throw new ForbiddenError(
+					"You can only view patients in your department",
+					"DEPARTMENT_ACCESS_DENIED",
+				);
+			}
+			effectiveDepartment = userDepartment;
+			logger.info(
+				{ userId, userDepartment },
+				"ABAC: Restricting patient list to doctor's department",
+			);
+		}
+	}
 
 	// Validate date range if provided
 	if (startDate && endDate) {
@@ -61,8 +102,8 @@ export async function listPatientsService({
 		page,
 		limit,
 		patientType,
-		department,
-		assignedDoctor,
+		department: effectiveDepartment,
+		assignedDoctor: effectiveAssignedDoctor,
 		status,
 		startDate,
 		endDate,

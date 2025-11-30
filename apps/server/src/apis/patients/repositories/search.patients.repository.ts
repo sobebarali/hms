@@ -9,23 +9,36 @@ const logger = createRepositoryLogger("searchPatients");
 
 /**
  * Search patients with optimized lookup
+ * Supports ABAC filtering by department and assigned doctor
  */
 export async function searchPatients({
 	tenantId,
 	q,
 	type,
 	limit,
+	departmentFilter,
+	assignedDoctorFilter,
 }: {
 	tenantId: string;
 	q: string;
 	type?: "id" | "name" | "phone" | "email";
 	limit: number;
+	departmentFilter?: string;
+	assignedDoctorFilter?: string;
 }) {
 	try {
 		logger.debug({ tenantId, q, type, limit }, "Searching patients");
 
 		// Build query based on search type
 		const query: Record<string, unknown> = { tenantId };
+
+		// Apply ABAC filters
+		if (departmentFilter) {
+			query.departmentId = departmentFilter;
+		}
+		if (assignedDoctorFilter) {
+			query.assignedDoctorId = assignedDoctorFilter;
+		}
 
 		if (type === "id") {
 			// Exact match on patient ID

@@ -21,6 +21,9 @@ export const listPatientsController = authenticatedHandler(
 
 		const result = await listPatientsService({
 			tenantId: req.user.tenantId,
+			userRoles: req.user.roles,
+			userDepartment: req.user.attributes?.department,
+			userId: req.user.id,
 			...(req.query as unknown as ListPatientsInput),
 		});
 

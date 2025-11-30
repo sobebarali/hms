@@ -7,6 +7,8 @@ description: Understanding authentication, authorization, and access control in 
 
 useHely uses OAuth2 with JWT tokens for authentication and implements both Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) for authorization.
 
+> **Current Scope:** The system supports Password, Refresh Token, and MFA grants for first-party applications. Authorization Code grant for third-party integrations is planned for a future release.
+
 ## Complete Multi-Tenant Flow
 
 ### Hospital Onboarding to First Login

@@ -21,6 +21,9 @@ export const searchPatientsController = authenticatedHandler(
 
 		const result = await searchPatientsService({
 			tenantId: req.user.tenantId,
+			userRoles: req.user.roles,
+			userDepartment: req.user.attributes?.department,
+			userId: req.user.id,
 			...(req.query as unknown as SearchPatientsInput),
 		});
 

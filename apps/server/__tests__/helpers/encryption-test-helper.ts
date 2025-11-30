@@ -128,7 +128,8 @@ export async function getEncryptedValueFromDb(
 		throw new Error(`Collection ${collection} not found`);
 	}
 
-	const doc = await coll.findOne({ _id: id });
+	// biome-ignore lint/suspicious/noExplicitAny: MongoDB native driver expects ObjectId but we use string IDs
+	const doc = await coll.findOne({ _id: id } as any);
 
 	if (!doc) {
 		throw new Error(`Document with id ${id} not found in ${collection}`);
@@ -162,6 +163,7 @@ export async function getRawDocumentFromDb(
 		throw new Error(`Collection ${collection} not found`);
 	}
 
-	const doc = await coll.findOne({ _id: id });
+	// biome-ignore lint/suspicious/noExplicitAny: MongoDB native driver expects ObjectId but we use string IDs
+	const doc = await coll.findOne({ _id: id } as any);
 	return doc as Record<string, unknown> | null;
 }
