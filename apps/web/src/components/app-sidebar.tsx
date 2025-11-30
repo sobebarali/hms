@@ -107,6 +107,10 @@ const navMain = [
 				title: "Create",
 				url: "/dashboard/prescriptions/create",
 			},
+			{
+				title: "Templates",
+				url: "/dashboard/prescriptions/templates",
+			},
 		],
 	},
 	{

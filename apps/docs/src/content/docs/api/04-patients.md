@@ -242,13 +242,18 @@ Required. Bearer token with `PATIENT:READ` permission.
 | Status | Code | Description |
 |--------|------|-------------|
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions or ABAC policy denied |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Patient not found |
 
-### Business Rules
+### Ownership Policy
 
-- ABAC policies control access based on department assignment
-- Doctors can only view patients assigned to their department (if policy enabled)
+**ABAC Enforcement:** Doctors can only access patients assigned to them.
+
+- **Allowed:** Patient's `assignedDoctorId` matches authenticated doctor's ID
+- **Bypass:** SUPER_ADMIN and HOSPITAL_ADMIN roles
+- **Other Roles:** Access based on RBAC permissions only (nurses, pharmacists, receptionists)
+
+If a doctor attempts to access a patient not assigned to them, they will receive a `403 FORBIDDEN` response.
 
 ---
 
@@ -295,8 +300,12 @@ Returns updated patient object.
 |--------|------|-------------|
 | 400 | INVALID_REQUEST | Invalid field values |
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Patient not found |
+
+### Ownership Policy
+
+Same as GET endpoint - doctors can only update patients assigned to them.
 
 ### Business Rules
 

@@ -200,8 +200,16 @@ Required. Bearer token with `PRESCRIPTION:READ` permission.
 | Status | Code | Description |
 |--------|------|-------------|
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Prescription not found |
+
+### Ownership Policy
+
+**ABAC Enforcement:** Doctors can only access prescriptions they created.
+
+- **Allowed:** Prescription's `doctorId` matches authenticated doctor's ID
+- **Bypass:** SUPER_ADMIN and HOSPITAL_ADMIN roles
+- **Other Roles:** Pharmacists and nurses access based on RBAC permissions
 
 ---
 
@@ -243,12 +251,16 @@ Returns updated prescription object.
 | 400 | INVALID_REQUEST | Invalid field values |
 | 400 | PRESCRIPTION_DISPENSED | Cannot modify dispensed prescription |
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Prescription not found |
+
+### Ownership Policy
+
+Same as GET endpoint - doctors can only update prescriptions they created.
 
 ### Business Rules
 
-- Only prescribing doctor can modify
+- Only prescribing doctor can modify (enforced by ownership policy)
 - Cannot modify after status is `DISPENSED` or `COMPLETED`
 - Medicine changes logged for audit trail
 

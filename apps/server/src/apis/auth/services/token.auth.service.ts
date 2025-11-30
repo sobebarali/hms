@@ -21,6 +21,7 @@ import {
 } from "../../../lib/cache/auth.cache";
 import { createServiceLogger } from "../../../lib/logger";
 import { comparePassword } from "../../../utils/crypto";
+import { decrypt } from "../../../utils/encryption";
 import { verifyBackupCode, verifyTotp } from "../../../utils/mfa";
 import { emitSecurityEvent } from "../../../utils/security-events";
 import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
@@ -360,9 +361,24 @@ async function handleMfaGrant({
 		);
 	}
 
+	// Decrypt TOTP secret for verification
+	const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+	if (!masterKey) {
+		logger.error("ENCRYPTION_MASTER_KEY not configured");
+		throw new Error("Encryption key not configured");
+	}
+
+	let decryptedSecret: string;
+	try {
+		decryptedSecret = decrypt(user.mfaConfig.secret, masterKey);
+	} catch (error) {
+		logger.error({ error }, "Failed to decrypt MFA secret");
+		throw new Error("Failed to decrypt MFA secret");
+	}
+
 	// Verify TOTP code
 	const isValidTotp = verifyTotp({
-		secret: user.mfaConfig.secret,
+		secret: decryptedSecret,
 		code,
 	});
 

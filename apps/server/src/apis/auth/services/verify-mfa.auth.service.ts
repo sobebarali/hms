@@ -1,5 +1,6 @@
 import { BadRequestError, NotFoundError } from "../../../errors";
 import { createServiceLogger } from "../../../lib/logger";
+import { decrypt } from "../../../utils/encryption";
 import { verifyTotp } from "../../../utils/mfa";
 import { emitSecurityEvent } from "../../../utils/security-events";
 import { findUserById } from "../../users/repositories/shared.users.repository";
@@ -54,9 +55,24 @@ export async function verifyMfa({
 		);
 	}
 
+	// Decrypt TOTP secret for verification
+	const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+	if (!masterKey) {
+		logger.error("ENCRYPTION_MASTER_KEY not configured");
+		throw new Error("Encryption key not configured");
+	}
+
+	let decryptedSecret: string;
+	try {
+		decryptedSecret = decrypt(user.mfaConfig.secret, masterKey);
+	} catch (error) {
+		logger.error({ error }, "Failed to decrypt MFA secret");
+		throw new Error("Failed to decrypt MFA secret");
+	}
+
 	// Verify TOTP code
 	const isValid = verifyTotp({
-		secret: user.mfaConfig.secret,
+		secret: decryptedSecret,
 		code,
 	});
 

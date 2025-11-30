@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { prescriptionOwnershipPolicy } from "../../middlewares/abac-policies";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
 import { validate } from "../../middlewares/validate";
@@ -72,6 +73,7 @@ router.get(
 router.get(
 	"/:id",
 	authorize("PRESCRIPTION:READ"),
+	prescriptionOwnershipPolicy, // ABAC: Doctors can only access prescriptions they created
 	validate(getPrescriptionByIdSchema),
 	getPrescriptionByIdController,
 );
@@ -80,6 +82,7 @@ router.get(
 router.patch(
 	"/:id",
 	authorize("PRESCRIPTION:UPDATE"),
+	prescriptionOwnershipPolicy, // ABAC: Doctors can only update prescriptions they created
 	validate(updatePrescriptionSchema),
 	updatePrescriptionController,
 );

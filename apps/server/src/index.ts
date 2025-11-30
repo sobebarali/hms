@@ -32,9 +32,24 @@ export const app = express();
 // Request context middleware (MUST BE FIRST)
 app.use(requestContext);
 
+// CORS configuration with fail-closed approach
+// In production, CORS_ORIGIN must be explicitly configured
+// In development/test, defaults to localhost for convenience
+const corsOrigin =
+	process.env.CORS_ORIGIN ||
+	(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+		? "http://localhost:3000"
+		: false); // Deny all origins if not configured in production
+
+if (corsOrigin === false && process.env.NODE_ENV === "production") {
+	logger.warn(
+		"CORS_ORIGIN not configured in production - all cross-origin requests will be denied",
+	);
+}
+
 app.use(
 	cors({
-		origin: process.env.CORS_ORIGIN || "",
+		origin: corsOrigin,
 		methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,

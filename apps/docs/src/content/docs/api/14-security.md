@@ -441,6 +441,105 @@ Returns full security event object with additional context.
 
 ---
 
+## Access Control
+
+### RBAC (Role-Based Access Control)
+
+All API endpoints are protected by role-based permissions using the format `RESOURCE:ACTION`. Users must have the required permission to access an endpoint.
+
+**Example permissions:**
+- `PATIENT:READ` - View patient data
+- `PRESCRIPTION:CREATE` - Create prescriptions
+- `VITALS:UPDATE` - Update vital signs records
+
+### ABAC (Attribute-Based Access Control)
+
+In addition to RBAC, the system enforces fine-grained access control based on resource ownership and user attributes. ABAC policies ensure users can only access resources they are authorized to see within their role.
+
+#### Patient Ownership Policy
+
+**Applies to:** Doctors accessing patient records
+
+- Doctors can only access patients explicitly assigned to them via `assignedDoctorId`
+- Admins (SUPER_ADMIN, HOSPITAL_ADMIN) bypass ownership restrictions
+- Other roles (nurses, pharmacists, receptionists) access patients based on RBAC permissions
+
+**Affected Endpoints:**
+- `GET /api/patients/:id`
+- `PATCH /api/patients/:id`
+
+**Bypass Conditions:**
+- User has SUPER_ADMIN or HOSPITAL_ADMIN role
+- User is assigned as the patient's doctor
+
+#### Prescription Ownership Policy
+
+**Applies to:** Doctors accessing prescription records
+
+- Doctors can only access prescriptions they created (`doctorId` matches user ID)
+- Pharmacists and nurses can access prescriptions based on RBAC permissions
+- Admins have unrestricted access
+
+**Affected Endpoints:**
+- `GET /api/prescriptions/:id`
+- `PATCH /api/prescriptions/:id`
+
+**Bypass Conditions:**
+- User has SUPER_ADMIN or HOSPITAL_ADMIN role
+- User is the prescribing doctor
+- User is a pharmacist or nurse with appropriate permissions
+
+#### Vitals Ownership Policy
+
+**Applies to:** Doctors accessing vital signs records
+
+- Doctors can only access vitals for patients assigned to them
+- Nurses can access vitals based on RBAC permissions
+- Admins have unrestricted access
+
+**Affected Endpoints:**
+- `GET /api/vitals/:id`
+- `PATCH /api/vitals/:id`
+
+**Bypass Conditions:**
+- User has SUPER_ADMIN or HOSPITAL_ADMIN role
+- User is assigned as the patient's doctor
+- User is a nurse with appropriate permissions
+
+#### Department-Scoped Access
+
+**Applies to:** Staff accessing resources within specific departments
+
+- Staff can only access resources in their assigned department
+- Users without department assignments are denied access
+- Admins bypass department restrictions
+
+**Implementation:** Ready to apply to department-specific operations
+
+#### Self-Profile Access
+
+**Applies to:** Users accessing profile information
+
+- Users can only view/edit their own profile
+- Users with `USER:READ` or `USER:UPDATE` permissions can access any profile
+- Admins have unrestricted access
+
+**Implementation:** Ready to apply to user profile endpoints
+
+#### Shift-Based Access (Optional)
+
+**Applies to:** Time-restricted access based on shift schedules
+
+- MORNING shift: 6 AM - 2 PM
+- EVENING shift: 2 PM - 10 PM
+- NIGHT shift: 10 PM - 6 AM
+- Users without shifts have 24/7 access
+- Admins bypass shift restrictions
+
+**Implementation:** Available but not currently enforced
+
+---
+
 ## Permissions
 
 | Permission | Description |

@@ -11,6 +11,7 @@
 // Cache key prefixes for auth-related data
 export const AUTH_CACHE_KEYS = {
 	SESSION: "session:",
+	SESSION_TENANT_MAP: "session_tenant:", // Maps sessionId -> tenantId for tenant-scoped lookups
 	REVOKED_TOKEN: "revoked:",
 	USER_SESSIONS: "user_sessions:",
 	FAILED_LOGINS: "failed_logins:",

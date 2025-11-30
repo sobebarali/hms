@@ -4,6 +4,7 @@ import {
 	InternalError,
 	NotFoundError,
 } from "../../../errors";
+import { invalidateAllUserSessions } from "../../../lib/cache/auth.cache";
 import { createServiceLogger } from "../../../lib/logger";
 import {
 	findDepartmentById,
@@ -90,6 +91,15 @@ export async function updateUserService({
 	const updatedStaff = await updateStaff({ tenantId, staffId: userId, data });
 	if (!updatedStaff) {
 		throw new InternalError("Failed to update user");
+	}
+
+	// If roles were updated, invalidate all user sessions to apply new permissions immediately
+	if (data.roles) {
+		await invalidateAllUserSessions({ userId: String(updatedStaff.userId) });
+		logger.info(
+			{ userId: String(updatedStaff.userId) },
+			"User sessions invalidated due to role change",
+		);
 	}
 
 	// Get user email

@@ -185,8 +185,16 @@ Required. Bearer token with `VITALS:READ` permission.
 | Status | Code | Description |
 |--------|------|-------------|
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Record not found |
+
+### Ownership Policy
+
+**ABAC Enforcement:** Doctors can only access vitals for their assigned patients.
+
+- **Allowed:** Patient associated with vitals has `assignedDoctorId` matching doctor's ID
+- **Bypass:** SUPER_ADMIN and HOSPITAL_ADMIN roles
+- **Other Roles:** Nurses access based on RBAC permissions
 
 ---
 
@@ -226,8 +234,12 @@ Returns updated vitals record.
 | 400 | CORRECTION_REASON_REQUIRED | Must provide reason |
 | 400 | RECORD_TOO_OLD | Cannot modify records older than 24 hours |
 | 401 | UNAUTHORIZED | Missing or invalid token |
-| 403 | FORBIDDEN | Insufficient permissions |
+| 403 | FORBIDDEN | Insufficient permissions or ownership policy denied |
 | 404 | NOT_FOUND | Record not found |
+
+### Ownership Policy
+
+Same as GET endpoint - doctors can only update vitals for their assigned patients.
 
 ### Business Rules
 

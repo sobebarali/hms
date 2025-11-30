@@ -1,8 +1,10 @@
 import pino from "pino";
 import { getTenantId, getTraceId, getUserId } from "./async-context";
 
-// Sensitive fields that should be redacted
+// Sensitive fields that should be redacted (complete redaction)
+// Includes authentication credentials and healthcare PHI/PII
 const SENSITIVE_FIELDS = [
+	// Authentication & Security
 	"password",
 	"token",
 	"accessToken",
@@ -11,13 +13,42 @@ const SENSITIVE_FIELDS = [
 	"resetToken",
 	"secret",
 	"apiKey",
+	"challengeToken",
+	"mfaSecret",
+
+	// Financial Information
 	"creditCard",
 	"cvv",
+	"bankAccount",
+	"routingNumber",
+
+	// Personal Identifiers (complete redaction for HIPAA compliance)
 	"ssn",
+	"socialSecurityNumber",
+	"insuranceNumber",
+	"medicareNumber",
+	"medicaidNumber",
+	"medicalRecordNumber",
+	"patientId",
+
+	// Protected Health Information (PHI)
+	"diagnosis",
+	"medicalHistory",
+	"prescriptionDetails",
+	"labResults",
+	"treatmentPlan",
 ];
 
-// Fields that should be partially masked
-const MASK_FIELDS = ["email", "phone", "adminEmail", "contactEmail"];
+// Fields that should be partially masked (show partial data for debugging)
+// Email: ****@domain.com | Phone: ****1234
+const MASK_FIELDS = [
+	"email",
+	"phone",
+	"adminEmail",
+	"contactEmail",
+	"emergencyContactPhone",
+	"guardianPhone",
+];
 
 /**
  * Sanitize an object by redacting sensitive fields

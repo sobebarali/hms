@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { vitalsOwnershipPolicy } from "../../middlewares/abac-policies";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
 import { validate } from "../../middlewares/validate";
@@ -61,6 +62,7 @@ router.post(
 router.get(
 	"/:id",
 	authorize("VITALS:READ"),
+	vitalsOwnershipPolicy, // ABAC: Doctors can only access vitals for their assigned patients
 	validate(getVitalsByIdSchema),
 	getVitalsByIdController,
 );
@@ -69,6 +71,7 @@ router.get(
 router.patch(
 	"/:id",
 	authorize("VITALS:UPDATE"),
+	vitalsOwnershipPolicy, // ABAC: Doctors can only update vitals for their assigned patients
 	validate(updateVitalsSchema),
 	updateVitalsController,
 );

@@ -3,6 +3,7 @@ import {
 	AUTH_CACHE_KEYS,
 	AUTH_CACHE_TTL,
 	SECURITY_THRESHOLDS,
+	tenantCacheKey,
 } from "../../constants/cache.constants";
 import { createServiceLogger } from "../logger";
 import { redis } from "../redis";
@@ -18,7 +19,11 @@ function hashToken(token: string): string {
 }
 
 /**
- * Store session data in cache
+ * Store session data in cache with tenant scoping
+ *
+ * Uses two-tier caching:
+ * 1. sessionId -> tenantId mapping for quick tenant lookup
+ * 2. Tenant-scoped session data for proper multi-tenant isolation
  */
 export async function cacheSession({
 	sessionId,
@@ -35,7 +40,16 @@ export async function cacheSession({
 	permissions: string[];
 	expiresIn?: number;
 }): Promise<void> {
-	const key = `${AUTH_CACHE_KEYS.SESSION}${sessionId}`;
+	// Store session-to-tenant mapping for tenant discovery
+	const mappingKey = `${AUTH_CACHE_KEYS.SESSION_TENANT_MAP}${sessionId}`;
+	await redis.set(mappingKey, tenantId, { ex: expiresIn });
+
+	// Store full session data with tenant-scoped key
+	const key = tenantCacheKey({
+		tenantId,
+		prefix: AUTH_CACHE_KEYS.SESSION,
+		identifier: sessionId,
+	});
 	const data = JSON.stringify({
 		userId,
 		tenantId,
@@ -45,11 +59,17 @@ export async function cacheSession({
 	});
 
 	await redis.set(key, data, { ex: expiresIn });
-	logger.debug({ sessionId, userId }, "Session cached");
+	logger.debug(
+		{ sessionId, userId, tenantId },
+		"Session cached with tenant scoping",
+	);
 }
 
 /**
- * Get cached session data
+ * Get cached session data using tenant-scoped lookup
+ *
+ * First retrieves tenantId from sessionId mapping,
+ * then fetches full session data from tenant-scoped key
  */
 export async function getCachedSession({
 	sessionId,
@@ -61,31 +81,66 @@ export async function getCachedSession({
 	roles: string[];
 	permissions: string[];
 } | null> {
-	const key = `${AUTH_CACHE_KEYS.SESSION}${sessionId}`;
+	// First, get the tenant ID for this session
+	const mappingKey = `${AUTH_CACHE_KEYS.SESSION_TENANT_MAP}${sessionId}`;
+	const tenantId = await redis.get<string>(mappingKey);
+
+	if (!tenantId) {
+		// Session mapping not found in cache
+		return null;
+	}
+
+	// Now get the full session data using tenant-scoped key
+	const key = tenantCacheKey({
+		tenantId,
+		prefix: AUTH_CACHE_KEYS.SESSION,
+		identifier: sessionId,
+	});
 	const data = await redis.get<string>(key);
 
 	if (!data) {
+		logger.warn(
+			{ sessionId, tenantId },
+			"Session mapping exists but session data not found",
+		);
 		return null;
 	}
 
 	try {
 		return JSON.parse(data);
 	} catch {
-		logger.warn({ sessionId }, "Failed to parse cached session");
+		logger.warn({ sessionId, tenantId }, "Failed to parse cached session");
 		return null;
 	}
 }
 
 /**
  * Invalidate a session from cache
+ *
+ * Removes both the tenant mapping and tenant-scoped session data
  */
 export async function invalidateSession({
 	sessionId,
 }: {
 	sessionId: string;
 }): Promise<void> {
-	const key = `${AUTH_CACHE_KEYS.SESSION}${sessionId}`;
-	await redis.del(key);
+	// First, get the tenant ID so we can delete the tenant-scoped session
+	const mappingKey = `${AUTH_CACHE_KEYS.SESSION_TENANT_MAP}${sessionId}`;
+	const tenantId = await redis.get<string>(mappingKey);
+
+	if (tenantId) {
+		// Delete tenant-scoped session data
+		const sessionKey = tenantCacheKey({
+			tenantId,
+			prefix: AUTH_CACHE_KEYS.SESSION,
+			identifier: sessionId,
+		});
+		await redis.del(sessionKey);
+		logger.debug({ sessionId, tenantId }, "Tenant-scoped session deleted");
+	}
+
+	// Delete the session-to-tenant mapping
+	await redis.del(mappingKey);
 	logger.debug({ sessionId }, "Session invalidated");
 }
 

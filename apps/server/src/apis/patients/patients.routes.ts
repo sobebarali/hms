@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { patientOwnershipPolicy } from "../../middlewares/abac-policies";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
 import { validate } from "../../middlewares/validate";
@@ -60,6 +61,7 @@ router.get(
 router.get(
 	"/:id",
 	authorize("PATIENT:READ"),
+	patientOwnershipPolicy, // ABAC: Doctors can only access assigned patients
 	validate(getPatientByIdSchema),
 	getPatientByIdController,
 );
@@ -68,6 +70,7 @@ router.get(
 router.patch(
 	"/:id",
 	authorize("PATIENT:UPDATE"),
+	patientOwnershipPolicy, // ABAC: Doctors can only update assigned patients
 	validate(updatePatientSchema),
 	updatePatientController,
 );

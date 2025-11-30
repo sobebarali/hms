@@ -1,5 +1,6 @@
 import { ConflictError, NotFoundError } from "../../../errors";
 import { createServiceLogger } from "../../../lib/logger";
+import { encrypt } from "../../../utils/encryption";
 import {
 	generateBackupCodes,
 	generateQrCodeDataUrl,
@@ -65,10 +66,18 @@ export async function enableMfa({
 		backupCodes.map((code) => hashBackupCode(code)),
 	);
 
-	// Update user with MFA configuration
+	// Encrypt TOTP secret before storage for security
+	const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+	if (!masterKey) {
+		logger.error("ENCRYPTION_MASTER_KEY not configured");
+		throw new Error("Encryption key not configured");
+	}
+	const encryptedSecret = encrypt(secret, masterKey);
+
+	// Update user with MFA configuration (store encrypted secret)
 	const updatedUser = await updateUserMfaConfig({
 		userId,
-		secret,
+		secret: encryptedSecret,
 		hashedBackupCodes,
 	});
 
