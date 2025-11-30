@@ -27,6 +27,7 @@ Response varies by user role. See role-specific sections below.
 
 | Status | Code | Description |
 |--------|------|-------------|
+| 400 | MISSING_STAFF_ID | Doctor role requires staffId on user profile |
 | 401 | UNAUTHORIZED | Missing or invalid token |
 | 403 | FORBIDDEN | Insufficient permissions |
 
@@ -48,8 +49,6 @@ Returns when user has `HOSPITAL_ADMIN` role.
 | patients | object | Patient statistics |
 | appointments | object | Appointment statistics |
 | staff | object | Staff statistics |
-| departments | object | Department statistics |
-| revenue | object | Revenue statistics (if enabled) |
 | alerts | array | System alerts |
 
 ### Overview Object
@@ -336,7 +335,7 @@ Returns when user has `RECEPTIONIST` role.
 
 ## Get Dashboard Widget
 
-**GET** `/api/dashboard/widget/:widgetId`
+**GET** `/api/dashboard/widgets/:widgetId`
 
 Retrieves specific widget data.
 
@@ -426,5 +425,4 @@ Required. Bearer token with `DASHBOARD:VIEW` permission.
 
 ### Business Rules
 
-- Rate limited to 1 refresh per minute
-- Dashboard data cached for 30 seconds by default
+- Rate limited to 1 refresh per minute per user

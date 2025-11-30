@@ -1,0 +1,42 @@
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { app } from "../../../src/index";
+import {
+	type AuthTestContext,
+	createAuthTestContext,
+} from "../../helpers/auth-test-context";
+
+describe("GET /api/dashboard - Doctor role", () => {
+	let context: AuthTestContext;
+	let accessToken: string;
+
+	beforeAll(async () => {
+		context = await createAuthTestContext({
+			roleName: "DOCTOR",
+			rolePermissions: [
+				"DASHBOARD:VIEW",
+				"PATIENT:READ",
+				"APPOINTMENT:READ",
+				"PRESCRIPTION:READ",
+				"PRESCRIPTION:CREATE",
+			],
+		});
+
+		const tokens = await context.issuePasswordTokens();
+		accessToken = tokens.accessToken;
+	}, 30000);
+
+	afterAll(async () => {
+		await context.cleanup();
+	});
+
+	it("returns doctor-specific dashboard data", async () => {
+		const response = await request(app)
+			.get("/api/dashboard")
+			.set("Authorization", `Bearer ${accessToken}`);
+
+		expect(response.status).toBe(200);
+		expect(response.body.success).toBe(true);
+		expect(response.body.data).toBeDefined();
+	});
+});
