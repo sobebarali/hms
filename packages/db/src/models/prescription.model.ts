@@ -14,6 +14,7 @@ export const PrescriptionStatus = {
 // Sub-schemas
 const medicineItemSchema = new Schema(
 	{
+		_id: { type: String },
 		medicineId: { type: String, ref: "Medicine" },
 		name: { type: String, required: true },
 		genericName: { type: String },
@@ -26,11 +27,12 @@ const medicineItemSchema = new Schema(
 		dispensed: { type: Boolean, default: false },
 		dispensedQuantity: { type: Number, default: 0 },
 	},
-	{ _id: true },
+	{ _id: false },
 );
 
 const templateMedicineSchema = new Schema(
 	{
+		_id: { type: String },
 		medicineId: { type: String, ref: "Medicine" },
 		name: { type: String, required: true },
 		genericName: { type: String },
@@ -40,7 +42,7 @@ const templateMedicineSchema = new Schema(
 		route: { type: String },
 		instructions: { type: String },
 	},
-	{ _id: true },
+	{ _id: false },
 );
 
 // Main Prescription schema

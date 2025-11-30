@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import appointmentsRoutes from "./apis/appointments/appointments.routes";
 import authRoutes from "./apis/auth/auth.routes";
+import dispensingRoutes from "./apis/dispensing/dispensing.routes";
 import hospitalRoutes from "./apis/hospital/hospital.routes";
 import menuRoutes from "./apis/menu/menu.routes";
 import patientsRoutes from "./apis/patients/patients.routes";
@@ -43,6 +44,7 @@ app.use(requestLogger);
 // API Routes
 app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/dispensing", dispensingRoutes);
 app.use("/api/roles", rolesRoutes);
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/users", usersRoutes);
