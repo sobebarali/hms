@@ -98,9 +98,9 @@ export async function registerHospital({
 		"Generated verification token",
 	);
 
-	// Extract domain from hospital name for admin username
-	const domain = slug.split("-")[0] || "hospital";
-	const adminUsername = `admin@${domain}`;
+	// Extract domain from admin email for admin username (per FR-1: admin@{hospital-domain})
+	const emailDomain = adminEmail.split("@")[1];
+	const adminUsername = `admin@${emailDomain}`;
 
 	logger.debug({ adminUsername }, "Generated admin username");
 
