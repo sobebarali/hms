@@ -21,7 +21,7 @@ export const prodTransporter = nodemailer.createTransport(
 // Email sender configuration
 export const emailConfig = {
 	from: process.env.EMAIL_FROM || "hello@example.com",
-	fromName: process.env.EMAIL_FROM_NAME || "HMS",
+	fromName: process.env.EMAIL_FROM_NAME || "useHely",
 };
 
 // Helper function to send emails

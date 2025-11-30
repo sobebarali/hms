@@ -23,7 +23,7 @@ export async function sendHospitalVerificationEmail({
 	try {
 		await sendEmail({
 			to,
-			subject: "Verify Your Hospital Registration - HMS",
+			subject: "Verify Your Hospital Registration - useHely",
 			category: "Hospital Registration",
 			html: getHospitalVerificationEmailHtml(data),
 			text: getHospitalVerificationEmailText(data),

@@ -231,7 +231,7 @@ function RegisterHospitalPage() {
 							<div>
 								<h1 className="font-bold text-xl">Register Your Hospital</h1>
 								<p className="text-muted-foreground text-sm">
-									Join the HMS platform
+									Join the useHely platform
 								</p>
 							</div>
 						</div>

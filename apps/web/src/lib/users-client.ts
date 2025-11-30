@@ -1,5 +1,5 @@
 /**
- * Users API Client for HMS
+ * Users API Client for useHely
  *
  * This client interfaces with the /api/users/* endpoints on the server.
  */

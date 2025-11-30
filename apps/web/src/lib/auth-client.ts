@@ -1,5 +1,5 @@
 /**
- * Custom Auth Client for HMS
+ * Custom Auth Client for useHely
  *
  * This client interfaces with the custom OAuth2 implementation
  * at /api/auth/* endpoints on the server.

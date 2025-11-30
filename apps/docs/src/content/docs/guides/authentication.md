@@ -1,11 +1,11 @@
 ---
 title: Authentication Guide
-description: Understanding authentication, authorization, and access control in HMS.
+description: Understanding authentication, authorization, and access control in useHely.
 ---
 
 ## Overview
 
-HMS uses OAuth2 with JWT tokens for authentication and implements both Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) for authorization.
+useHely uses OAuth2 with JWT tokens for authentication and implements both Role-Based Access Control (RBAC) and Attribute-Based Access Control (ABAC) for authorization.
 
 ## Complete Multi-Tenant Flow
 

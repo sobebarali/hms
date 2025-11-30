@@ -5,13 +5,13 @@ description: Quick start guide to begin using the Hospital Management System.
 
 ## Overview
 
-The Hospital Management System (HMS) is a multi-tenant SaaS platform that enables hospitals to digitize their operations. This guide walks you through the initial setup process.
+The Hospital Management System (useHely) is a multi-tenant SaaS platform that enables hospitals to digitize their operations. This guide walks you through the initial setup process.
 
 ## Hospital Registration
 
 ### Step 1: Register Your Hospital
 
-To begin using HMS, register your hospital on the platform:
+To begin using useHely, register your hospital on the platform:
 
 1. Navigate to the registration page
 2. Provide the following information:
@@ -73,7 +73,7 @@ Customize roles beyond the defaults:
 
 ## Default Roles
 
-HMS provides pre-configured roles:
+useHely provides pre-configured roles:
 
 | Role | Description |
 |------|-------------|

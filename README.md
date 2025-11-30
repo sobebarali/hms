@@ -1,8 +1,8 @@
-# HMS - Hospital Management System
+# useHely - Hospital Management System
 
 ## What is this?
 
-HMS helps hospitals take care of their patients better!
+useHely helps hospitals take care of their patients better!
 
 Think of it like a super smart helper that helps doctors and nurses:
 
@@ -56,7 +56,7 @@ Check out our [Documentation](apps/docs) for all the details!
 
 ## For Developers
 
-If you want to help build HMS or run it yourself, see the [Developer Guide](apps/docs).
+If you want to help build useHely or run it yourself, see the [Developer Guide](apps/docs).
 
 ---
 

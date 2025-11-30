@@ -23,7 +23,7 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 
-// HMS Navigation Data
+// useHely Navigation Data
 const navMain = [
 	{
 		title: "Dashboard",

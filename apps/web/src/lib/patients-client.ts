@@ -1,5 +1,5 @@
 /**
- * Patients API Client for HMS
+ * Patients API Client for useHely
  *
  * This client interfaces with the /api/patients/* endpoints on the server.
  */

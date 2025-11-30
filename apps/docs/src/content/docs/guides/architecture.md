@@ -5,7 +5,7 @@ description: Technical architecture and design of the Hospital Management System
 
 ## System Architecture
 
-HMS follows a **modular monolithic architecture** designed for flexibility, maintainability, and scalability.
+useHely follows a **modular monolithic architecture** designed for flexibility, maintainability, and scalability.
 
 ## Architecture Diagram
 
@@ -87,7 +87,7 @@ HMS follows a **modular monolithic architecture** designed for flexibility, main
 
 ## Multi-Tenancy Architecture
 
-HMS implements **schema-per-tenant** isolation:
+useHely implements **schema-per-tenant** isolation:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
