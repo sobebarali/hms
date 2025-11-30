@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import authRoutes from "./apis/auth/auth.routes";
 import hospitalRoutes from "./apis/hospital/hospital.routes";
+import menuRoutes from "./apis/menu/menu.routes";
 import patientsRoutes from "./apis/patients/patients.routes";
 import prescriptionsRoutes from "./apis/prescriptions/prescriptions.routes";
 import rolesRoutes from "./apis/roles/roles.routes";
@@ -44,6 +45,7 @@ app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/patients", patientsRoutes);
 app.use("/api/prescriptions", prescriptionsRoutes);
+app.use("/api/menu", menuRoutes);
 
 app.get("/", (_req, res) => {
 	res.status(200).send("OK");

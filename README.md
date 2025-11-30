@@ -1,159 +1,63 @@
-# hms
+# HMS - Hospital Management System
 
-A multi-tenant, cloud-enabled Hospital Management System enabling hospitals to self-register, manage operations, and maintain complete patient lifecycle
-management with role-based access control
+## What is this?
 
-## Features
+HMS helps hospitals take care of their patients better!
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Express** - Fast, unopinionated web framework
-- **Node.js** - Runtime environment
-- **Mongoose** - TypeScript-first ORM
-- **MongoDB** - Database engine
-- **Authentication** - Better-Auth
-- **Turborepo** - Optimized monorepo build system
-- **Starlight** - Documentation site with Astro
-- **Biome** - Linting and formatting
-- **Husky** - Git hooks for code quality
+Think of it like a super smart helper that helps doctors and nurses:
 
-## Getting Started
+- Remember all their patients
+- Keep track of medicines
+- Make appointments
+- And much more!
 
-First, install the dependencies:
+## Who is it for?
 
-```bash
-npm install
-```
-## Database Setup
+- **Hospitals** - Big and small ones!
+- **Doctors** - To see their patients
+- **Nurses** - To help take care of everyone
+- **Staff** - To keep things organized
 
-This project uses MongoDB with Mongoose.
+## What can it do?
 
-1. Make sure you have MongoDB set up.
-2. Update your `apps/server/.env` file with your MongoDB connection URI.
+### Patient Care
 
-3. Apply the schema to your database:
-```bash
-npm run db:push
-```
+- Keep track of all patients
+- Remember their health history
+- Store important health information
 
+### Appointments
 
-Then, run the development server:
+- Schedule doctor visits
+- Send reminders
+- No more forgotten appointments!
 
-```bash
-npm run dev
-```
+### Prescriptions
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+- Doctors can write medicine orders
+- Easy to read and understand
+- Keep track of all medicines
 
+### Team Management
 
+- Different roles for different people
+- Everyone sees what they need
+- Keep patient information safe
 
+### Multiple Hospitals
 
+- Each hospital has its own space
+- Safe and separate data
+- Works for any size hospital
 
+## Want to learn more?
 
-## Deployment (Alchemy)
-- Web dev: cd apps/web && npm run dev
-- Web deploy: cd apps/web && npm run deploy
-- Web destroy: cd apps/web && npm run destroy
+Check out our [Documentation](apps/docs) for all the details!
 
+## For Developers
 
-## Project Structure
+If you want to help build HMS or run it yourself, see the [Developer Guide](apps/docs).
 
-```
-hms/
-├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
-│   ├── docs/        # Documentation site (Astro Starlight)
-│   └── server/      # Backend API (Express)
-├── packages/
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
-```
+---
 
-## Module Structure (Per Domain)
-
-Each API domain follows a consistent layered architecture with one file per endpoint per layer:
-
-```
-apps/server/src/apis/{domain}/
-├── controllers/          # HTTP request/response handling
-│   ├── {endpoint1}.{domain}.controller.ts
-│   ├── {endpoint2}.{domain}.controller.ts
-│   └── {endpoint3}.{domain}.controller.ts
-├── services/            # Business logic
-│   ├── {endpoint1}.{domain}.service.ts
-│   ├── {endpoint2}.{domain}.service.ts
-│   └── {endpoint3}.{domain}.service.ts
-├── repositories/        # Database operations
-│   ├── {endpoint1}.{domain}.repository.ts
-│   ├── {endpoint2}.{domain}.repository.ts
-│   ├── {endpoint3}.{domain}.repository.ts
-│   └── shared.{domain}.repository.ts      # Reusable lookup functions
-├── validations/        # Zod schemas + type definitions (Input & Output)
-│   ├── {endpoint1}.{domain}.validation.ts
-│   ├── {endpoint2}.{domain}.validation.ts
-│   └── {endpoint3}.{domain}.validation.ts
-├── middlewares/        # Domain-specific middleware
-│   └── {domain}.middleware.ts
-└── {domain}.routes.ts  # Route definitions
-```
-
-**Example: Patients Domain**
-
-```
-apps/server/src/apis/patients/
-├── controllers/
-│   ├── register.patients.controller.ts
-│   ├── list.patients.controller.ts
-│   ├── get-by-id.patients.controller.ts
-│   ├── update.patients.controller.ts
-│   └── delete.patients.controller.ts
-├── services/
-│   ├── register.patients.service.ts
-│   ├── list.patients.service.ts
-│   ├── get-by-id.patients.service.ts
-│   ├── update.patients.service.ts
-│   └── delete.patients.service.ts
-├── repositories/
-│   ├── register.patients.repository.ts
-│   ├── list.patients.repository.ts
-│   ├── get-by-id.patients.repository.ts
-│   ├── update.patients.repository.ts
-│   ├── delete.patients.repository.ts
-│   └── shared.patients.repository.ts      # Reusable lookups (findById, findByEmail, etc.)
-├── validations/
-│   ├── register.patients.validation.ts
-│   ├── list.patients.validation.ts
-│   ├── get-by-id.patients.validation.ts
-│   ├── update.patients.validation.ts
-│   └── delete.patients.validation.ts
-├── middlewares/
-│   └── patients.middleware.ts
-└── patients.routes.ts
-```
-
-**Layer Responsibilities:**
-- **Routes** - Endpoint definitions, route-level middleware registration
-- **Validations** - Zod schemas for request validation, Input types (inferred from Zod), Output types (manually defined interfaces)
-- **Controllers** - HTTP handling, extract data from request, call service, return response
-- **Services** - Business logic, orchestration, multi-repository coordination
-- **Repositories** - Database queries, single model CRUD operations
-  - Endpoint repositories: endpoint-specific operations only
-  - Shared repositories: reusable lookup functions across endpoints/domains
-- **Middlewares** - Domain-specific middleware (authorization, validation, etc.)
-
-## Available Scripts
-
-- `npm run dev`: Start all applications in development mode
-- `npm run build`: Build all applications
-- `npm run dev:web`: Start only the web application
-- `npm run dev:server`: Start only the server
-- `npm run check-types`: Check TypeScript types across all apps
-- `npm run db:push`: Push schema changes to database
-- `npm run db:studio`: Open database studio UI
-- `npm run check`: Run Biome formatting and linting
-- `cd apps/docs && npm run dev`: Start documentation site
-- `cd apps/docs && npm run build`: Build documentation site
+Made with love for better healthcare

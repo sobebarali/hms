@@ -20,6 +20,10 @@ export const Resources = {
 	REPORT: "REPORT",
 	TENANT: "TENANT",
 	ADMISSION: "ADMISSION",
+	DASHBOARD: "DASHBOARD",
+	SETTINGS: "SETTINGS",
+	QUEUE: "QUEUE",
+	DOCTOR: "DOCTOR",
 } as const;
 
 // Actions
@@ -29,6 +33,8 @@ export const Actions = {
 	UPDATE: "UPDATE",
 	DELETE: "DELETE",
 	MANAGE: "MANAGE",
+	VIEW: "VIEW",
+	EXPORT: "EXPORT",
 } as const;
 
 // Permission type
@@ -127,6 +133,24 @@ export const Permissions = {
 	ADMISSION_UPDATE: "ADMISSION:UPDATE" as Permission,
 	ADMISSION_DELETE: "ADMISSION:DELETE" as Permission,
 	ADMISSION_MANAGE: "ADMISSION:MANAGE" as Permission,
+
+	// Dashboard permissions
+	DASHBOARD_VIEW: "DASHBOARD:VIEW" as Permission,
+
+	// Settings permissions
+	SETTINGS_READ: "SETTINGS:READ" as Permission,
+	SETTINGS_MANAGE: "SETTINGS:MANAGE" as Permission,
+
+	// Queue permissions
+	QUEUE_READ: "QUEUE:READ" as Permission,
+	QUEUE_MANAGE: "QUEUE:MANAGE" as Permission,
+
+	// Doctor permissions
+	DOCTOR_READ: "DOCTOR:READ" as Permission,
+
+	// Export permissions
+	PATIENT_EXPORT: "PATIENT:EXPORT" as Permission,
+	REPORT_EXPORT: "REPORT:EXPORT" as Permission,
 } as const;
 
 // Pre-defined role names
@@ -168,6 +192,10 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.REPORT_MANAGE,
 		Permissions.TENANT_MANAGE,
 		Permissions.ADMISSION_MANAGE,
+		Permissions.DASHBOARD_VIEW,
+		Permissions.SETTINGS_MANAGE,
+		Permissions.QUEUE_MANAGE,
+		Permissions.DOCTOR_READ,
 	],
 
 	[RoleNames.HOSPITAL_ADMIN]: [
@@ -189,6 +217,11 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.TENANT_READ,
 		Permissions.TENANT_UPDATE,
 		Permissions.ADMISSION_MANAGE,
+		Permissions.DASHBOARD_VIEW,
+		Permissions.SETTINGS_MANAGE,
+		Permissions.QUEUE_MANAGE,
+		Permissions.DOCTOR_READ,
+		Permissions.REPORT_EXPORT,
 	],
 
 	[RoleNames.DOCTOR]: [
@@ -206,6 +239,7 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.ADMISSION_CREATE,
 		Permissions.ADMISSION_READ,
 		Permissions.ADMISSION_UPDATE,
+		Permissions.DASHBOARD_VIEW,
 	],
 
 	[RoleNames.NURSE]: [
@@ -218,6 +252,7 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.APPOINTMENT_READ,
 		Permissions.ADMISSION_READ,
 		Permissions.ADMISSION_UPDATE,
+		Permissions.DASHBOARD_VIEW,
 	],
 
 	[RoleNames.PHARMACIST]: [
@@ -228,6 +263,7 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.INVENTORY_READ,
 		Permissions.INVENTORY_UPDATE,
 		Permissions.PATIENT_READ,
+		Permissions.DASHBOARD_VIEW,
 	],
 
 	[RoleNames.RECEPTIONIST]: [
@@ -239,6 +275,8 @@ export const RolePermissions: Record<RoleName, Permission[]> = {
 		Permissions.APPOINTMENT_DELETE,
 		Permissions.ADMISSION_CREATE,
 		Permissions.ADMISSION_READ,
+		Permissions.DASHBOARD_VIEW,
+		Permissions.QUEUE_MANAGE,
 	],
 };
 
