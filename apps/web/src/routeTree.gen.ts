@@ -21,12 +21,15 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardStaffIndexRouteImport } from './routes/dashboard/staff/index'
 import { Route as DashboardPrescriptionsIndexRouteImport } from './routes/dashboard/prescriptions/index'
 import { Route as DashboardPatientsIndexRouteImport } from './routes/dashboard/patients/index'
+import { Route as DashboardAppointmentsIndexRouteImport } from './routes/dashboard/appointments/index'
 import { Route as DashboardStaffIdRouteImport } from './routes/dashboard/staff/$id'
 import { Route as DashboardPrescriptionsCreateRouteImport } from './routes/dashboard/prescriptions/create'
 import { Route as DashboardPrescriptionsIdRouteImport } from './routes/dashboard/prescriptions/$id'
 import { Route as DashboardPatientsRegisterRouteImport } from './routes/dashboard/patients/register'
 import { Route as DashboardPatientsOpdQueueRouteImport } from './routes/dashboard/patients/opd-queue'
 import { Route as DashboardPatientsIdRouteImport } from './routes/dashboard/patients/$id'
+import { Route as DashboardAppointmentsScheduleRouteImport } from './routes/dashboard/appointments/schedule'
+import { Route as DashboardAppointmentsIdRouteImport } from './routes/dashboard/appointments/$id'
 import { Route as DashboardPrescriptionsTemplatesIndexRouteImport } from './routes/dashboard/prescriptions/templates/index'
 import { Route as DashboardPrescriptionsTemplatesCreateRouteImport } from './routes/dashboard/prescriptions/templates/create'
 import { Route as DashboardPrescriptionsTemplatesIdRouteImport } from './routes/dashboard/prescriptions/templates/$id'
@@ -92,6 +95,12 @@ const DashboardPatientsIndexRoute = DashboardPatientsIndexRouteImport.update({
   path: '/patients/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAppointmentsIndexRoute =
+  DashboardAppointmentsIndexRouteImport.update({
+    id: '/appointments/',
+    path: '/appointments/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardStaffIdRoute = DashboardStaffIdRouteImport.update({
   id: '/staff/$id',
   path: '/staff/$id',
@@ -126,6 +135,17 @@ const DashboardPatientsIdRoute = DashboardPatientsIdRouteImport.update({
   path: '/patients/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAppointmentsScheduleRoute =
+  DashboardAppointmentsScheduleRouteImport.update({
+    id: '/appointments/schedule',
+    path: '/appointments/schedule',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardAppointmentsIdRoute = DashboardAppointmentsIdRouteImport.update({
+  id: '/appointments/$id',
+  path: '/appointments/$id',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardPrescriptionsTemplatesIndexRoute =
   DashboardPrescriptionsTemplatesIndexRouteImport.update({
     id: '/prescriptions/templates/',
@@ -155,12 +175,15 @@ export interface FileRoutesByFullPath {
   '/success': typeof SuccessRoute
   '/verify-hospital': typeof VerifyHospitalRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/appointments/$id': typeof DashboardAppointmentsIdRoute
+  '/dashboard/appointments/schedule': typeof DashboardAppointmentsScheduleRoute
   '/dashboard/patients/$id': typeof DashboardPatientsIdRoute
   '/dashboard/patients/opd-queue': typeof DashboardPatientsOpdQueueRoute
   '/dashboard/patients/register': typeof DashboardPatientsRegisterRoute
   '/dashboard/prescriptions/$id': typeof DashboardPrescriptionsIdRoute
   '/dashboard/prescriptions/create': typeof DashboardPrescriptionsCreateRoute
   '/dashboard/staff/$id': typeof DashboardStaffIdRoute
+  '/dashboard/appointments': typeof DashboardAppointmentsIndexRoute
   '/dashboard/patients': typeof DashboardPatientsIndexRoute
   '/dashboard/prescriptions': typeof DashboardPrescriptionsIndexRoute
   '/dashboard/staff': typeof DashboardStaffIndexRoute
@@ -177,12 +200,15 @@ export interface FileRoutesByTo {
   '/success': typeof SuccessRoute
   '/verify-hospital': typeof VerifyHospitalRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/appointments/$id': typeof DashboardAppointmentsIdRoute
+  '/dashboard/appointments/schedule': typeof DashboardAppointmentsScheduleRoute
   '/dashboard/patients/$id': typeof DashboardPatientsIdRoute
   '/dashboard/patients/opd-queue': typeof DashboardPatientsOpdQueueRoute
   '/dashboard/patients/register': typeof DashboardPatientsRegisterRoute
   '/dashboard/prescriptions/$id': typeof DashboardPrescriptionsIdRoute
   '/dashboard/prescriptions/create': typeof DashboardPrescriptionsCreateRoute
   '/dashboard/staff/$id': typeof DashboardStaffIdRoute
+  '/dashboard/appointments': typeof DashboardAppointmentsIndexRoute
   '/dashboard/patients': typeof DashboardPatientsIndexRoute
   '/dashboard/prescriptions': typeof DashboardPrescriptionsIndexRoute
   '/dashboard/staff': typeof DashboardStaffIndexRoute
@@ -201,12 +227,15 @@ export interface FileRoutesById {
   '/success': typeof SuccessRoute
   '/verify-hospital': typeof VerifyHospitalRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/appointments/$id': typeof DashboardAppointmentsIdRoute
+  '/dashboard/appointments/schedule': typeof DashboardAppointmentsScheduleRoute
   '/dashboard/patients/$id': typeof DashboardPatientsIdRoute
   '/dashboard/patients/opd-queue': typeof DashboardPatientsOpdQueueRoute
   '/dashboard/patients/register': typeof DashboardPatientsRegisterRoute
   '/dashboard/prescriptions/$id': typeof DashboardPrescriptionsIdRoute
   '/dashboard/prescriptions/create': typeof DashboardPrescriptionsCreateRoute
   '/dashboard/staff/$id': typeof DashboardStaffIdRoute
+  '/dashboard/appointments/': typeof DashboardAppointmentsIndexRoute
   '/dashboard/patients/': typeof DashboardPatientsIndexRoute
   '/dashboard/prescriptions/': typeof DashboardPrescriptionsIndexRoute
   '/dashboard/staff/': typeof DashboardStaffIndexRoute
@@ -226,12 +255,15 @@ export interface FileRouteTypes {
     | '/success'
     | '/verify-hospital'
     | '/dashboard/'
+    | '/dashboard/appointments/$id'
+    | '/dashboard/appointments/schedule'
     | '/dashboard/patients/$id'
     | '/dashboard/patients/opd-queue'
     | '/dashboard/patients/register'
     | '/dashboard/prescriptions/$id'
     | '/dashboard/prescriptions/create'
     | '/dashboard/staff/$id'
+    | '/dashboard/appointments'
     | '/dashboard/patients'
     | '/dashboard/prescriptions'
     | '/dashboard/staff'
@@ -248,12 +280,15 @@ export interface FileRouteTypes {
     | '/success'
     | '/verify-hospital'
     | '/dashboard'
+    | '/dashboard/appointments/$id'
+    | '/dashboard/appointments/schedule'
     | '/dashboard/patients/$id'
     | '/dashboard/patients/opd-queue'
     | '/dashboard/patients/register'
     | '/dashboard/prescriptions/$id'
     | '/dashboard/prescriptions/create'
     | '/dashboard/staff/$id'
+    | '/dashboard/appointments'
     | '/dashboard/patients'
     | '/dashboard/prescriptions'
     | '/dashboard/staff'
@@ -271,12 +306,15 @@ export interface FileRouteTypes {
     | '/success'
     | '/verify-hospital'
     | '/dashboard/'
+    | '/dashboard/appointments/$id'
+    | '/dashboard/appointments/schedule'
     | '/dashboard/patients/$id'
     | '/dashboard/patients/opd-queue'
     | '/dashboard/patients/register'
     | '/dashboard/prescriptions/$id'
     | '/dashboard/prescriptions/create'
     | '/dashboard/staff/$id'
+    | '/dashboard/appointments/'
     | '/dashboard/patients/'
     | '/dashboard/prescriptions/'
     | '/dashboard/staff/'
@@ -382,6 +420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPatientsIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/appointments/': {
+      id: '/dashboard/appointments/'
+      path: '/appointments'
+      fullPath: '/dashboard/appointments'
+      preLoaderRoute: typeof DashboardAppointmentsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/staff/$id': {
       id: '/dashboard/staff/$id'
       path: '/staff/$id'
@@ -424,6 +469,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPatientsIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/appointments/schedule': {
+      id: '/dashboard/appointments/schedule'
+      path: '/appointments/schedule'
+      fullPath: '/dashboard/appointments/schedule'
+      preLoaderRoute: typeof DashboardAppointmentsScheduleRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/appointments/$id': {
+      id: '/dashboard/appointments/$id'
+      path: '/appointments/$id'
+      fullPath: '/dashboard/appointments/$id'
+      preLoaderRoute: typeof DashboardAppointmentsIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/prescriptions/templates/': {
       id: '/dashboard/prescriptions/templates/'
       path: '/prescriptions/templates'
@@ -450,12 +509,15 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardAppointmentsIdRoute: typeof DashboardAppointmentsIdRoute
+  DashboardAppointmentsScheduleRoute: typeof DashboardAppointmentsScheduleRoute
   DashboardPatientsIdRoute: typeof DashboardPatientsIdRoute
   DashboardPatientsOpdQueueRoute: typeof DashboardPatientsOpdQueueRoute
   DashboardPatientsRegisterRoute: typeof DashboardPatientsRegisterRoute
   DashboardPrescriptionsIdRoute: typeof DashboardPrescriptionsIdRoute
   DashboardPrescriptionsCreateRoute: typeof DashboardPrescriptionsCreateRoute
   DashboardStaffIdRoute: typeof DashboardStaffIdRoute
+  DashboardAppointmentsIndexRoute: typeof DashboardAppointmentsIndexRoute
   DashboardPatientsIndexRoute: typeof DashboardPatientsIndexRoute
   DashboardPrescriptionsIndexRoute: typeof DashboardPrescriptionsIndexRoute
   DashboardStaffIndexRoute: typeof DashboardStaffIndexRoute
@@ -466,12 +528,15 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardAppointmentsIdRoute: DashboardAppointmentsIdRoute,
+  DashboardAppointmentsScheduleRoute: DashboardAppointmentsScheduleRoute,
   DashboardPatientsIdRoute: DashboardPatientsIdRoute,
   DashboardPatientsOpdQueueRoute: DashboardPatientsOpdQueueRoute,
   DashboardPatientsRegisterRoute: DashboardPatientsRegisterRoute,
   DashboardPrescriptionsIdRoute: DashboardPrescriptionsIdRoute,
   DashboardPrescriptionsCreateRoute: DashboardPrescriptionsCreateRoute,
   DashboardStaffIdRoute: DashboardStaffIdRoute,
+  DashboardAppointmentsIndexRoute: DashboardAppointmentsIndexRoute,
   DashboardPatientsIndexRoute: DashboardPatientsIndexRoute,
   DashboardPrescriptionsIndexRoute: DashboardPrescriptionsIndexRoute,
   DashboardStaffIndexRoute: DashboardStaffIndexRoute,
