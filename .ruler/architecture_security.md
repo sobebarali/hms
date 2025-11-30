@@ -4,103 +4,22 @@
 
 ### Workspace Organization
 - Turborepo with npm workspaces
-- `apps/` - web (React + TanStack Router), server (Express), docs (Astro)
-- `packages/` - auth, db, config
+- `apps/`: web (React + TanStack Router), server (Express), docs (Astro)
+- `packages/`: auth, db, config
 - Each workspace has own package.json
 - Shared deps in root package.json
 
 ### Application Layers
-- **Controller** - HTTP request handling
-- **Service** - Business logic
-- **Repository** - Data access
-- **Model** - Mongoose schemas
+- **Controller**: HTTP request handling
+- **Service**: Business logic
+- **Repository**: Data access
+- **Model**: Mongoose schemas
 - Keep layers loosely coupled
 
-### Module Structure (Per Domain)
-
-Each API domain is organized with **one file per endpoint per layer** for maximum modularity and scalability.
-
-**Directory Structure:**
-```
-apps/server/src/apis/{domain}/
-├── controllers/{endpoint}.{domain}.controller.ts
-├── services/{endpoint}.{domain}.service.ts
-├── repositories/{endpoint}.{domain}.repository.ts
-├── validations/{endpoint}.{domain}.validation.ts
-├── middlewares/{domain}.middleware.ts
-└── {domain}.routes.ts
-```
-
-**Layer Responsibilities:**
-- **Routes** (`{domain}.routes.ts`) - Endpoint definitions, middleware registration, route composition
-- **Validations** (`{endpoint}.{domain}.validation.ts`) - Zod schemas for request validation, Input types (inferred from Zod), Output types (manually defined interfaces)
-- **Controllers** (`{endpoint}.{domain}.controller.ts`) - HTTP handling, request extraction, response formatting
-- **Services** (`{endpoint}.{domain}.service.ts`) - Business logic, orchestration, transaction management
-- **Repositories** (`{endpoint}.{domain}.repository.ts`) - Database queries, model operations
-- **Middlewares** (`{domain}.middleware.ts`) - Domain-specific middleware shared across endpoints
-
-**File Naming Convention:**
-- Controllers: `{endpoint}.{domain}.controller.ts` (e.g., `register.patients.controller.ts`)
-- Services: `{endpoint}.{domain}.service.ts` (e.g., `register.patients.service.ts`)
-- Repositories: `{endpoint}.{domain}.repository.ts` (e.g., `register.patients.repository.ts`)
-- Validations: `{endpoint}.{domain}.validation.ts` (e.g., `register.patients.validation.ts`)
-- Middlewares: `{domain}.middleware.ts` (e.g., `patients.middleware.ts`)
-- Routes: `{domain}.routes.ts` (e.g., `patients.routes.ts`)
-
-**Benefits:**
-- Clear separation of concerns per endpoint
-- Easy to locate and modify endpoint-specific logic
-- Scalable for large domains with many endpoints
-- Enables parallel development on different endpoints
-- Simplifies testing and maintenance
-- Reduces merge conflicts in team environments
-- Zod as single source of truth for input types ensures validation and types are always in sync
-
-### Shared Repositories
-
-For reusable database lookup functions used across multiple endpoints or domains, create shared repository files.
-
-**Directory Structure with Shared Repositories:**
-```
-apps/server/src/apis/{domain}/
-├── controllers/{endpoint}.{domain}.controller.ts
-├── services/{endpoint}.{domain}.service.ts
-├── repositories/
-│   ├── {endpoint}.{domain}.repository.ts    # Endpoint-specific operations
-│   └── shared.{domain}.repository.ts        # Reusable lookup functions
-├── validations/{endpoint}.{domain}.validation.ts
-├── middlewares/{domain}.middleware.ts
-└── {domain}.routes.ts
-```
-
-**Shared Repository Guidelines:**
-- File naming: `shared.{domain}.repository.ts`
-- Contains reusable lookup functions (e.g., `findById`, `findByEmail`)
-- Services import directly from shared repositories
-- Endpoint repositories contain only endpoint-specific operations
-- Never re-export shared functions from endpoint repositories
-
-**Example - users domain:**
-```
-repositories/
-├── create.users.repository.ts      # createUser only
-├── update.users.repository.ts      # updateStaff only
-├── deactivate.users.repository.ts  # deactivateStaff only
-└── shared.users.repository.ts      # findStaffById, findUserByEmail, getRolesByIds, etc.
-```
-
-**Cross-Domain Imports:**
-Services can import shared functions from other domains:
-```typescript
-// In users service
-import { findHospitalById } from "../../hospital/repositories/shared.hospital.repository";
-import { findStaffById } from "../repositories/shared.users.repository";
-```
-
-**Existing Shared Repositories:**
-- `shared.users.repository.ts` - Staff, User, Department, Role lookups, session invalidation
-- `shared.hospital.repository.ts` - Hospital lookups by ID, license, admin email
-- `shared.auth.repository.ts` - Session CRUD operations
+### Module Structure
+- Domain directory: `apps/server/src/apis/{domain}/`
+- One file per endpoint per layer
+- Shared repository for reusable lookups: `shared.{domain}.repository.ts`
 
 ## Multi-Tenant Architecture
 
@@ -119,8 +38,8 @@ import { findStaffById } from "../repositories/shared.users.repository";
 - Validate on every request
 
 ### Authorization (RBAC + ABAC)
-- **RBAC**: Role-based with permission format `RESOURCE:ACTION`
-- **ABAC**: Attribute-based for fine-grained control
+- RBAC: Role-based with permission format `RESOURCE:ACTION`
+- ABAC: Attribute-based for fine-grained control
 - Check permissions in middleware after auth
 - Deny by default, allow only when explicitly permitted
 - Cache permission checks with short TTL
