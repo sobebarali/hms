@@ -516,3 +516,50 @@ export async function findDepartmentsByIds({
 		throw error;
 	}
 }
+
+/**
+ * Update staff status by email (for account locking/unlocking)
+ * Finds user by email, then updates all staff records for that user
+ */
+export async function updateStaffStatusByEmail({
+	email,
+	status,
+}: {
+	email: string;
+	status: string;
+}): Promise<number> {
+	try {
+		logger.debug({ email, status }, "Updating staff status by email");
+
+		// Find user by email first
+		const user = await User.findOne({ email }).lean();
+		if (!user) {
+			logger.debug({ email }, "User not found for status update");
+			return 0;
+		}
+
+		// Update all staff records for this user
+		const result = await Staff.updateMany(
+			{ userId: String(user._id) },
+			{ $set: { status } },
+		);
+
+		logDatabaseOperation(
+			logger,
+			"updateMany",
+			"staff",
+			{ email, status },
+			{ modifiedCount: result.modifiedCount },
+		);
+
+		logger.info(
+			{ email, status, count: result.modifiedCount },
+			"Staff status updated by email",
+		);
+
+		return result.modifiedCount;
+	} catch (error) {
+		logError(logger, error, "Failed to update staff status by email");
+		throw error;
+	}
+}

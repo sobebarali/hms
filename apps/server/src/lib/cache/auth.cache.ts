@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { StaffStatus } from "@hms/db";
+import { updateStaffStatusByEmail } from "../../apis/users/repositories/shared.users.repository";
 import {
 	AUTH_CACHE_KEYS,
 	AUTH_CACHE_TTL,
@@ -289,6 +291,7 @@ export async function clearFailedLogins({
 
 /**
  * Lock an account
+ * Persists LOCKED status to both Redis cache and database
  */
 export async function lockAccount({
 	identifier,
@@ -299,6 +302,21 @@ export async function lockAccount({
 	await redis.set(key, Date.now().toString(), {
 		ex: AUTH_CACHE_TTL.ACCOUNT_LOCK,
 	});
+
+	// Persist LOCKED status to database for durability and queryability
+	try {
+		await updateStaffStatusByEmail({
+			email: identifier,
+			status: StaffStatus.LOCKED,
+		});
+	} catch (error) {
+		// Log but don't fail - Redis lock is still in place for immediate blocking
+		logger.error(
+			{ identifier: `****${identifier.slice(-4)}`, error },
+			"Failed to persist LOCKED status to database",
+		);
+	}
+
 	logger.warn(
 		{ identifier: `****${identifier.slice(-4)}` },
 		"Account locked due to too many failed login attempts",
@@ -320,6 +338,7 @@ export async function isAccountLocked({
 
 /**
  * Unlock an account
+ * Clears Redis cache lock and resets status to ACTIVE in database
  */
 export async function unlockAccount({
 	identifier,
@@ -331,6 +350,20 @@ export async function unlockAccount({
 
 	await redis.del(lockKey);
 	await redis.del(failedKey);
+
+	// Reset status to ACTIVE in database
+	try {
+		await updateStaffStatusByEmail({
+			email: identifier,
+			status: StaffStatus.ACTIVE,
+		});
+	} catch (error) {
+		// Log but don't fail - Redis lock is already cleared
+		logger.error(
+			{ identifier: `****${identifier.slice(-4)}`, error },
+			"Failed to reset status to ACTIVE in database",
+		);
+	}
 
 	logger.info(
 		{ identifier: `****${identifier.slice(-4)}` },

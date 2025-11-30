@@ -13,6 +13,7 @@ export const StaffShift = {
 export const StaffStatus = {
 	ACTIVE: "ACTIVE",
 	INACTIVE: "INACTIVE",
+	LOCKED: "LOCKED",
 	PASSWORD_EXPIRED: "PASSWORD_EXPIRED",
 } as const;
 

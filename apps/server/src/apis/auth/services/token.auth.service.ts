@@ -235,6 +235,10 @@ async function handlePasswordGrant({
 			throw new PasswordExpiredError();
 		}
 
+		if (staff.status === "LOCKED") {
+			throw new AccountLockedError();
+		}
+
 		throw new AccountLockedError(
 			"Your account is not active. Please contact your administrator.",
 		);
@@ -464,6 +468,10 @@ async function handleMfaGrant({
 
 		if (staff.status === "PASSWORD_EXPIRED") {
 			throw new PasswordExpiredError();
+		}
+
+		if (staff.status === "LOCKED") {
+			throw new AccountLockedError();
 		}
 
 		throw new AccountLockedError(
