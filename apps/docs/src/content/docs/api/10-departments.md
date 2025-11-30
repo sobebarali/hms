@@ -206,7 +206,8 @@ All fields optional:
 |-------|------|-------------|
 | name | string | Department name |
 | description | string | Description |
-| headId | string | New department head |
+| headId | string | New department head (null to remove) |
+| parentId | string | Parent department ID (null to remove) |
 | location | string | Location |
 | contactPhone | string | Phone |
 | contactEmail | string | Email |
@@ -359,17 +360,15 @@ Required. Bearer token with `DEPARTMENT:MANAGE` permission.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | userId | string | Yes | User ID to assign |
-| isPrimary | boolean | No | Primary department (default: false) |
 
 ### Response
 
-**Status: 200 OK**
+**Status: 201 Created**
 
 | Field | Type | Description |
 |-------|------|-------------|
 | userId | string | User ID |
 | departmentId | string | Department ID |
-| isPrimary | boolean | Is primary department |
 | assignedAt | string | Assignment timestamp |
 
 ### Errors
@@ -384,9 +383,8 @@ Required. Bearer token with `DEPARTMENT:MANAGE` permission.
 
 ### Business Rules
 
-- User can belong to multiple departments
-- Only one primary department per user
-- Setting new primary removes old primary
+- Staff can only belong to one department at a time
+- Assigning to a new department replaces the previous assignment
 
 ---
 
@@ -428,7 +426,7 @@ Required. Bearer token with `DEPARTMENT:MANAGE` permission.
 ### Business Rules
 
 - Department head cannot be removed (reassign first)
-- User must have at least one department
+- Staff will have no department after removal (departmentId set to null)
 
 ---
 
